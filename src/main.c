@@ -28,7 +28,7 @@ int main(int argc, char **argv) {
   SD_task_t task;
   alg_t alg;
   method_t  priority_method = RANDOM;
-  double deadline=0., budget=0.;
+  double deadline=0., budget=0., price=1.0;
 
   SD_init(&argc, argv);
 
@@ -49,6 +49,7 @@ int main(int argc, char **argv) {
         {"priority", required_argument, 0, 'd'},
         {"deadline", required_argument, 0, 'e'},
         {"budget", required_argument, 0, 'f'},
+        {"price", required_argument, 0, 'g'},
         {0, 0, 0, 0}
     };
 
@@ -124,6 +125,9 @@ int main(int argc, char **argv) {
       break;
     case 'f':
       budget = atof(optarg);
+      break;
+    case 'g':
+      price = atof(optarg);
       break;
     }
   }
