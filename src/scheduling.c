@@ -13,6 +13,19 @@
 XBT_LOG_NEW_DEFAULT_SUBCATEGORY(scheduling, EnsembleSched,
                                 "Logging specific to scheduling");
 
+scheduling_globals_t new_scheduling_globals(){
+  scheduling_globals_t globals =
+      (scheduling_globals_t) calloc (1, sizeof(struct _scheduling_globals));
+
+  /* set some default values */
+  globals->priority_method = RANDOM;
+  globals->price = 1.0;
+  globals->budget=0.;
+  globals->deadline=0.;
+
+  return globals;
+}
+
 char* getAlgorithmName(alg_t a){
   switch (a){
     case DPDS: return "DPDS";

@@ -26,9 +26,7 @@ int main(int argc, char **argv) {
   const SD_workstation_t *workstations = NULL;
   xbt_dynar_t daxes = NULL, current_dax = NULL;
   SD_task_t task;
-  alg_t alg;
-  method_t  priority_method = RANDOM;
-  double deadline=0., budget=0., price=1.0;
+  scheduling_globals_t globals;
 
   SD_init(&argc, argv);
 
@@ -36,6 +34,7 @@ int main(int argc, char **argv) {
   xbt_log_control_set("sd_daxparse.thresh:critical");
   xbt_log_control_set("surf_workstation.thresh:critical");
 
+  globals = new_scheduling_globals();
 
   daxes = xbt_dynar_new(sizeof(xbt_dynar_t), NULL);
   opterr = 0;
@@ -75,8 +74,8 @@ int main(int argc, char **argv) {
       break;
     case 'a': /* Algorithm name */
       /* DPDS, WA-DPDS, SPSS, Ours*/
-      alg = getAlgorithmByName(optarg);
-      XBT_INFO("Algorithm: %s",getAlgorithmName(alg));
+      globals->alg = getAlgorithmByName(optarg);
+      XBT_INFO("Algorithm: %s",getAlgorithmName(globals->alg));
       break;
     case 'b':
       platform_file = optarg;
@@ -112,32 +111,32 @@ int main(int argc, char **argv) {
     case 'd':
       priority = optarg;
       if (!strcmp(priority,"random"))
-        priority_method = RANDOM;
+        globals->priority_method = RANDOM;
       else if (!strcmp(priority, "sorted"))
-        priority_method = SORTED;
+        globals->priority_method = SORTED;
       else {
         XBT_ERROR("Unknown priority setting method.");
         exit(1);
       }
       break;
     case 'e':
-      deadline = atof(optarg);
+      globals->deadline = atof(optarg);
       break;
     case 'f':
-      budget = atof(optarg);
+      globals->budget = atof(optarg);
       break;
     case 'g':
-      price = atof(optarg);
+      globals->price = atof(optarg);
       break;
     }
   }
 
-  if (budget && deadline){
+  if (globals->budget && globals->deadline){
     XBT_INFO("The constraints are a budget of $%.0f and a deadline of %.0fs",
-        budget, deadline);
+        globals->budget, globals->deadline);
   }
 
-  assign_dax_priorities(daxes, priority_method);
+  assign_dax_priorities(daxes, globals->priority_method);
   xbt_dynar_foreach(daxes, cursor, current_dax){
      task = get_root(current_dax);
      XBT_INFO("%30s is assigned a priority of %d",
@@ -155,6 +154,7 @@ int main(int argc, char **argv) {
     xbt_dynar_free_container(&current_dax);
   }
   xbt_dynar_free(&daxes);
+  free(globals);
 
   for(cursor=0; cursor<total_nworkstations; cursor++)
     SD_workstation_free_attribute(workstations[cursor]);
