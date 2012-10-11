@@ -136,6 +136,10 @@ int main(int argc, char **argv) {
         globals->budget, globals->deadline);
   }
 
+  /* Assign priorities to the DAXes composing the ensemble according to the
+   * chosen method: RANDOM (default) or SORTED.
+   * Then display the result.
+   */
   assign_dax_priorities(daxes, globals->priority_method);
   xbt_dynar_foreach(daxes, cursor, current_dax){
      task = get_root(current_dax);
