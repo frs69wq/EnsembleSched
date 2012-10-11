@@ -10,4 +10,6 @@
 
 SD_task_t get_root(xbt_dynar_t dax);
 
+void assign_dax_priorities(xbt_dynar_t, method_t);
+
 #endif /* DAX_H_ */

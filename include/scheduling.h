@@ -9,11 +9,16 @@
 #define SCHEDULING_H_
 
 typedef enum {
-DPDS=0,
-WADPDS,
-SPSS,
-OURS
+  DPDS=0,
+  WADPDS,
+  SPSS,
+  OURS
 } alg_t;
+
+typedef enum {
+  RANDOM=0,
+  SORTED
+} method_t;
 
 char* getAlgorithmName(alg_t);
 alg_t getAlgorithmByName(char*);
