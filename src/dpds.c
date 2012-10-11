@@ -85,6 +85,13 @@ void dpds_schedule(xbt_dynar_t daxes, double deadline){
     root = get_root(current_dax);
     xbt_dynar_push(priority_queue, &root);
   }
+  /* Sort the priority queue by increasing value of DAX priority.
+   * Tasks that belong to the most important DAX are located toward the end of
+   * the dynar. xbt_dynar_pop then return the most important task.
+   * Remark: The paper by Malawski et al. does not detail the INSERT function
+   * (Algorithm 2, line 5). Then no secondary sort is applied for tasks that
+   * belong to the same DAX.
+   */
   xbt_dynar_sort(priority_queue, daxPriorityCompareTasks);
 
   while (!xbt_dynar_is_empty((changed = SD_simulate(deadline-SD_get_clock())))
@@ -105,6 +112,7 @@ void dpds_schedule(xbt_dynar_t daxes, double deadline){
            xbt_dynar_push(priority_queue, &child);
          xbt_dynar_free_container(&ready_children);
        }
+       /* Sort again the priority queue as new tasks have been added. */
        xbt_dynar_sort(priority_queue, daxPriorityCompareTasks);
     }
 
@@ -113,6 +121,9 @@ void dpds_schedule(xbt_dynar_t daxes, double deadline){
 
       /* This call removes v from the list of idleVMs */
       v = select_random(idleVMs);
+      /* Pop the last task from the dynar, i.e. one belonging to the DAX of
+       * highest priority.
+       */
       xbt_dynar_pop(priority_queue, &t);
 
       SD_task_schedulel(t, 1, v);
