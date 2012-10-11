@@ -4,7 +4,7 @@
  *  Created on: 10 oct. 2012
  *      Author: suter
  */
-#include <unistd.h>
+#include <getopt.h>
 #include <ctype.h>
 #include <stdio.h>
 #include <stdlib.h>
@@ -21,26 +21,63 @@ XBT_LOG_NEW_DEFAULT_CATEGORY(EnsembleSched,
 
 int main(int argc, char **argv) {
   unsigned int flag, cursor, cursor2;
-  char *platform_file = NULL, *daxname = NULL;
+  char *platform_file = NULL, *daxname = NULL, *priority=NULL;
   int total_nworkstations = 0;
   const SD_workstation_t *workstations = NULL;
   xbt_dynar_t daxes = NULL, current_dax = NULL;
   SD_task_t task;
   alg_t alg;
+  method_t  priority_method = RANDOM;
+  double deadline=0., budget=0.;
 
   SD_init(&argc, argv);
+
+  /* get rid off some logs that are useless */
+  xbt_log_control_set("sd_daxparse.thresh:critical");
+  xbt_log_control_set("surf_workstation.thresh:critical");
+
+
   daxes = xbt_dynar_new(sizeof(xbt_dynar_t), NULL);
   opterr = 0;
 
-  //TODO add command line argurments: budget, deadline, utilization threshold
-  while ((flag = getopt (argc, argv, "a:p:d:")) != -1){
+  //TODO add command line arguments: utilization thresholds
+  while (1){
+    static struct option long_options[] = {
+        {"alg", required_argument, 0, 'a'},
+        {"platform", required_argument, 0, 'b'},
+        {"dax", required_argument, 0, 'c'},
+        {"priority", required_argument, 0, 'd'},
+        {"deadline", required_argument, 0, 'e'},
+        {"budget", required_argument, 0, 'f'},
+        {0, 0, 0, 0}
+    };
+
+    int option_index = 0;
+    flag = getopt_long (argc, argv, "abc:",
+                        long_options, &option_index);
+
+    /* Detect the end of the options. */
+    if (flag == -1)
+      break;
+
+//          (flag = getopt (argc, argv, "a:p:d:")) != -1)
+
     switch (flag) {
+    case 0:
+      /* If this option set a flag, do nothing else now. */
+      if (long_options[option_index].flag != 0)
+        break;
+      printf ("option %s", long_options[option_index].name);
+      if (optarg)
+        printf (" with arg %s", optarg);
+        printf ("\n");
+      break;
     case 'a': /* Algorithm name */
       /* DPDS, WA-DPDS, SPSS, Ours*/
       alg = getAlgorithmByName(optarg);
       XBT_INFO("Algorithm: %s",getAlgorithmName(alg));
       break;
-    case 'p':
+    case 'b':
       platform_file = optarg;
       SD_create_environment(platform_file);
       total_nworkstations = SD_workstation_get_number();
@@ -57,7 +94,7 @@ int main(int argc, char **argv) {
         SD_workstation_set_to_idle(workstations[cursor]);
       }
       break;
-    case 'd':
+    case 'c':
       /* List of DAGs to schedule concurrently (just file names here) */
       daxname = optarg;
       XBT_INFO("loading %s", daxname);
@@ -71,27 +108,38 @@ int main(int argc, char **argv) {
       }
       xbt_dynar_push(daxes,&current_dax);
       break;
+    case 'd':
+      priority = optarg;
+      if (!strcmp(priority,"random"))
+        priority_method = RANDOM;
+      else if (!strcmp(priority, "sorted"))
+        priority_method = SORTED;
+      else {
+        XBT_ERROR("Unknown priority setting method.");
+        exit(1);
+      }
+      break;
+    case 'e':
+      deadline = atof(optarg);
+      break;
+    case 'f':
+      budget = atof(optarg);
+      break;
     }
   }
 
-  assign_dax_priorities(daxes, RANDOM);
-  xbt_dynar_foreach(daxes, cursor, current_dax){
-     task = get_root(current_dax);
-     XBT_INFO("%s belonging to %s is assigned a priority of %d",
-         SD_task_get_name(task),
-         SD_task_get_dax_name(task),
-         SD_task_get_dax_priority(task));
-  }
-  assign_dax_priorities(daxes, SORTED);
-  xbt_dynar_foreach(daxes, cursor, current_dax){
-     task = get_root(current_dax);
-     XBT_INFO("%s belonging to %s (size=%lu) is assigned a priority of %d",
-         SD_task_get_name(task),
-         SD_task_get_dax_name(task),
-         xbt_dynar_length(current_dax),
-         SD_task_get_dax_priority(task));
+  if (budget && deadline){
+    XBT_INFO("The constraints are a budget of $%.0f and a deadline of %.0fs",
+        budget, deadline);
   }
 
+  assign_dax_priorities(daxes, priority_method);
+  xbt_dynar_foreach(daxes, cursor, current_dax){
+     task = get_root(current_dax);
+     XBT_INFO("%30s is assigned a priority of %d",
+         SD_task_get_dax_name(task),
+         SD_task_get_dax_priority(task));
+  }
 
   /* Cleaning step: Free all the allocated data structures */
   xbt_dynar_foreach(daxes, cursor, current_dax){
