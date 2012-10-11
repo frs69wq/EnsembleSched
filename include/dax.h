@@ -7,6 +7,7 @@
 
 #ifndef DAX_H_
 #define DAX_H_
+#include "scheduling.h"
 
 SD_task_t get_root(xbt_dynar_t dax);
 
