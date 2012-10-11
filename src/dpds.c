@@ -85,7 +85,7 @@ void dpds_schedule(xbt_dynar_t daxes, double deadline){
     root = get_root(current_dax);
     xbt_dynar_push(priority_queue, &root);
   }
-  //TODO have to sort the priority queue by increasing workflow priority
+  xbt_dynar_sort(priority_queue, daxPriorityCompareTasks);
 
   while (!xbt_dynar_is_empty((changed = SD_simulate(deadline-SD_get_clock())))
          || first_call){
@@ -105,7 +105,7 @@ void dpds_schedule(xbt_dynar_t daxes, double deadline){
            xbt_dynar_push(priority_queue, &child);
          xbt_dynar_free_container(&ready_children);
        }
-       //TODO have to sort the priority queue by increasing workflow priority
+       xbt_dynar_sort(priority_queue, daxPriorityCompareTasks);
     }
 
     while ((!xbt_dynar_is_empty(idleVMs)) &&

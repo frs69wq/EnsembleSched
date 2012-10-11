@@ -30,6 +30,12 @@ char* SD_task_get_dax_name(SD_task_t);
 void SD_task_set_dax_priority(SD_task_t, int);
 int SD_task_get_dax_priority(SD_task_t);
 
+/*
+ * Comparators
+ */
+int daxPriorityCompareTasks(const void *, const void *);
+
+
 /* Other functions needed by scheduling algorithms */
 xbt_dynar_t SD_task_get_ready_children(SD_task_t t);
 

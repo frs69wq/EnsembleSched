@@ -47,6 +47,22 @@ int SD_task_get_dax_priority(SD_task_t task){
   return attr->dax_priority;
 }
 
+/* Comparison function to sort tasks increasingly according to their priority
+ * of the DAX they belong to.
+ */
+int daxPriorityCompareTasks(const void * t1, const void *t2){
+  int priority1, priority2;
+
+  priority1 = SD_task_get_dax_priority(*((SD_task_t *)t1));
+  priority2 = SD_task_get_dax_priority(*((SD_task_t *)t2));
+
+  if (priority1 < priority2)
+    return -1;
+  else if (priority1 == priority2)
+    return 0;
+  else
+    return 1;
+}
 
 
 xbt_dynar_t SD_task_get_ready_children(SD_task_t t){
