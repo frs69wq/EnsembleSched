@@ -78,4 +78,5 @@ void assign_dax_priorities(xbt_dynar_t daxes, method_t method){
       SD_task_set_dax_priority(task, priorities[i]);
     }
   }
+  free(priorities);
 }
