@@ -11,6 +11,7 @@
 
 #include "simdag/simdag.h"
 #include "xbt.h"
+#include "dax.h"
 #include "task.h"
 #include "workstation.h"
 #include "scheduling.h"
@@ -64,13 +65,33 @@ int main(int argc, char **argv) {
       xbt_dynar_foreach(current_dax,cursor,task) {
         if (SD_task_get_kind(task)==SD_TASK_COMP_SEQ){
           SD_task_watch(task, SD_DONE);
-          SD_task_allocate_attribute(task);
         }
+        SD_task_allocate_attribute(task);
+        SD_task_set_dax_name(task, daxname);
       }
       xbt_dynar_push(daxes,&current_dax);
       break;
     }
   }
+
+  assign_dax_priorities(daxes, RANDOM);
+  xbt_dynar_foreach(daxes, cursor, current_dax){
+     task = get_root(current_dax);
+     XBT_INFO("%s belonging to %s is assigned a priority of %d",
+         SD_task_get_name(task),
+         SD_task_get_dax_name(task),
+         SD_task_get_dax_priority(task));
+  }
+  assign_dax_priorities(daxes, SORTED);
+  xbt_dynar_foreach(daxes, cursor, current_dax){
+     task = get_root(current_dax);
+     XBT_INFO("%s belonging to %s (size=%lu) is assigned a priority of %d",
+         SD_task_get_name(task),
+         SD_task_get_dax_name(task),
+         xbt_dynar_length(current_dax),
+         SD_task_get_dax_priority(task));
+  }
+
 
   /* Cleaning step: Free all the allocated data structures */
   xbt_dynar_foreach(daxes, cursor, current_dax){
