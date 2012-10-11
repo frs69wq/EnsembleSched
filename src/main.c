@@ -131,6 +131,7 @@ int main(int argc, char **argv) {
     }
   }
 
+  /* Sanity checks about crucial parameters */
   if (globals->budget && globals->deadline){
     XBT_INFO("The constraints are a budget of $%.0f and a deadline of %.0fs",
         globals->budget, globals->deadline);
@@ -146,6 +147,15 @@ int main(int argc, char **argv) {
      XBT_INFO("%30s is assigned a priority of %d",
          SD_task_get_dax_name(task),
          SD_task_get_dax_priority(task));
+  }
+
+  switch(globals->alg){
+  case DPDS:
+    dpds_init(daxes, globals);
+    break;
+  default:
+    XBT_ERROR("Algorithm not implemented yet.");
+    break;
   }
 
   /* Cleaning step: Free all the allocated data structures */

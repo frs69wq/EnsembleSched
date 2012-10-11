@@ -39,4 +39,10 @@ char* getAlgorithmName(alg_t);
 alg_t getAlgorithmByName(char*);
 
 void handle_resource_dependency(SD_workstation_t, SD_task_t);
+
+/*****************************************************************************/
+/*************       Scheduling algorithms entry points        ***************/
+/*****************************************************************************/
+void dpds_init(xbt_dynar_t, scheduling_globals_t);
+
 #endif /* SCHEDULING_H_ */

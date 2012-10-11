@@ -18,6 +18,9 @@
 #include "task.h"
 #include "scheduling.h"
 
+XBT_LOG_NEW_DEFAULT_SUBCATEGORY(dpds, EnsembleSched,
+                                "Logging specific to the DPDS algorithm");
+
 /* Dynamic provisioning algorithm for DPDS
  * Requires
  *   c: consumed budget
@@ -123,12 +126,16 @@ void dpds_schedule(xbt_dynar_t daxes, double deadline){
   xbt_dynar_free_container(&priority_queue);
 }
 
-void dpds_init(xbt_dynar_t daxes, double d, double b, double p){
+void dpds_init(xbt_dynar_t daxes, scheduling_globals_t globals){
   int i, nVM;
   const SD_workstation_t *workstations = SD_workstation_get_list();
 
-  /* Start by activating nVM VMs*/
-  nVM = ceil(b/(d*p));
+  /* Start by activating nVM VMs
+   * Deadline is expressed in seconds, while price is for an hour.
+   * Conversion is needed.
+   */
+  nVM = ceil(globals->budget/((globals->deadline/3600.)*globals->price));
+  XBT_INFO("%d VMs are started to begin with", nVM);
   for (i = 0; i < nVM; i++){
     SD_workstation_start(workstations[i]);
   }
