@@ -19,8 +19,21 @@ void SD_task_allocate_attribute(SD_task_t task){
 }
 
 void SD_task_free_attribute(SD_task_t task){
+  TaskAttribute attr = (TaskAttribute) SD_task_get_data(task);
+  free(attr->daxname);
   free(SD_task_get_data(task));
   SD_task_set_data(task, NULL);
+}
+void SD_task_set_dax_name(SD_task_t task, char *daxname){
+  TaskAttribute attr = (TaskAttribute) SD_task_get_data(task);
+  attr->daxname=strdup(daxname);
+  SD_task_set_data(task, attr);
+
+}
+
+char* SD_task_get_dax_name(SD_task_t task){
+  TaskAttribute attr = (TaskAttribute) SD_task_get_data(task);
+  return attr->daxname;
 }
 
 void SD_task_set_dax_priority(SD_task_t task, int priority){
