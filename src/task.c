@@ -23,8 +23,22 @@ void SD_task_free_attribute(SD_task_t task){
   SD_task_set_data(task, NULL);
 }
 
+void SD_task_set_dax_priority(SD_task_t task, int priority){
+  TaskAttribute attr = (TaskAttribute) SD_task_get_data(task);
+  attr->dax_priority=priority;
+  SD_task_set_data(task, attr);
+}
+
+int SD_task_set_dax_priority(SD_task_t task){
+  TaskAttribute attr = (TaskAttribute) SD_task_get_data(task);
+  return attr->dax_priority;
+}
+
+
+
 xbt_dynar_t SD_task_get_ready_children(SD_task_t t){
   xbt_dynar_t ready_children=NULL;
   //TODO
   return ready_children;
 }
+

@@ -11,7 +11,7 @@
 
 typedef struct _TaskAttribute *TaskAttribute;
 struct _TaskAttribute {
-  int dummy; //TODO to remove
+  int dax_priority;
   //TODO add necessary attributes
 };
 
@@ -20,6 +20,12 @@ struct _TaskAttribute {
  */
 void SD_task_allocate_attribute(SD_task_t);
 void SD_task_free_attribute(SD_task_t);
+
+/*
+ * Accessors
+ */
+void SD_task_set_dax_priority(SD_task_t, int);
+int SD_task_set_dax_priority(SD_task_t);
 
 /* Other functions needed by scheduling algorithms */
 xbt_dynar_t SD_task_get_ready_children(SD_task_t t);
