@@ -10,6 +10,7 @@
 #include "simdag/simdag.h"
 #include "xbt.h"
 #include "scheduling.h"
+#include "dax.h"
 
 XBT_LOG_NEW_DEFAULT_SUBCATEGORY(dax, EnsembleSched,
                                 "Logging specific to daxes");
