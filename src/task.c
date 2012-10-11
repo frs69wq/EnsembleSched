@@ -29,7 +29,7 @@ void SD_task_set_dax_priority(SD_task_t task, int priority){
   SD_task_set_data(task, attr);
 }
 
-int SD_task_set_dax_priority(SD_task_t task){
+int SD_task_get_dax_priority(SD_task_t task){
   TaskAttribute attr = (TaskAttribute) SD_task_get_data(task);
   return attr->dax_priority;
 }

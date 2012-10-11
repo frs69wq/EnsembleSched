@@ -25,7 +25,7 @@ void SD_task_free_attribute(SD_task_t);
  * Accessors
  */
 void SD_task_set_dax_priority(SD_task_t, int);
-int SD_task_set_dax_priority(SD_task_t);
+int SD_task_get_dax_priority(SD_task_t);
 
 /* Other functions needed by scheduling algorithms */
 xbt_dynar_t SD_task_get_ready_children(SD_task_t t);
