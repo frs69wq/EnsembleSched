@@ -11,6 +11,9 @@
 #include "xbt.h"
 #include "scheduling.h"
 
+XBT_LOG_NEW_DEFAULT_SUBCATEGORY(dax, EnsembleSched,
+                                "Logging specific to daxes");
+
 SD_task_t get_root(xbt_dynar_t dax){
   SD_task_t task;
 
