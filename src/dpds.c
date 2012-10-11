@@ -50,7 +50,7 @@ void dpds_provision(double c, double b, double d, double p, double t,
   } else {
     u = compute_current_VM_utilization();
     if ((u > uh) && (xbt_dynar_length(VR) < (vmax*nVM))){
-      v = find_unactive_VM_to_start();
+      v = find_inactive_VM_to_start();
       SD_workstation_start(v);
     } else if (u < ul) {
       VI = get_idle_VMs();
