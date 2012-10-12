@@ -136,6 +136,11 @@ int main(int argc, char **argv) {
     XBT_INFO("The constraints are a budget of $%.0f and a deadline of %.0fs",
         globals->budget, globals->deadline);
   }
+  if (ceil(globals->budget/((globals->deadline/3600.)*globals->price))>
+      SD_workstation_get_number()){
+    XBT_ERROR("The platform file doesn't have enough nodes. Stop here");
+    exit(1);
+  }
 
   /* Assign priorities to the DAXes composing the ensemble according to the
    * chosen method: RANDOM (default) or SORTED.
