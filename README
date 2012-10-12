@@ -1,7 +1,13 @@
-This project is a simulator of various scheduling algorithms for
-workflow ensembles on a cloud platform.
+This project is a simulator based on SimGrid of various scheduling
+algorithms for workflow ensembles on a cloud platform.
 
-The command accepts many parameters:
+Requires SimGrid (git release):
+* http://simgrid.gforge.inria.fr
+* git clone git://scm.gforge.inria.fr/simgrid/simgrid.git
+* 101 tutorial on the used SimDAG API:
+  * http://simgrid.gforge.inria.fr/tutorials/101/simdag-101.pdf
+
+The command line accepts many parameters:
 * --alg <algorithm name>: the scheduling algorithm (currently only DPDS)
 * --platform <platform file>: the description of the cloud in the
                               simgrid format
