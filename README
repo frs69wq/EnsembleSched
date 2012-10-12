@@ -1,0 +1,33 @@
+This project is a simulator of various scheduling algorithms for
+workflow ensembles on a cloud platform.
+
+The command accepts many parameters:
+* --alg <algorithm name>: the scheduling algorithm (currently only DPDS)
+* --platform <platform file>: the description of the cloud in the
+                              simgrid format
+* --dax <file>: description of a workflow in the Pegasus format (DAX).
+                Multiple --dax flags can be used
+* --budget <double>: budget in $ (or any other currency)
+* --deadline <double>: deadline before which a maximum of workflows
+                       have to complete expressed in seconds
+* --price <double>: hourly cost of a single VM in $/h (default value 1)
+
+Typical command line:
+./EnsembleSched --alg DPDS --platform cluster.xml \
+--dax daxfiles/Montage_50.xml --dax daxfiles/CyberShake_30.xml \
+--budget 100 --deadline 10000
+
+Corresponding output:
+[0.000000] [EnsembleSched/INFO] Algorithm: DPDS
+[0.000000] [EnsembleSched/INFO] loading daxfiles/Montage_50.xml
+[0.000000] [EnsembleSched/INFO] loading daxfiles/CyberShake_30.xml
+[0.000000] [EnsembleSched/INFO] The constraints are a budget of $100 and a deadline of 10000s
+[0.000000] [EnsembleSched/INFO]        daxfiles/Montage_50.xml is assigned a priority of 1
+[0.000000] [EnsembleSched/INFO]     daxfiles/CyberShake_30.xml is assigned a priority of 0
+[0.000000] [dpds/INFO] 36 VMs are started to begin with
+
+To obtain more verbose outputs add to the command line:
+--log=dpds.thresh:verbose 
+--log=dpds.thresh:debug
+--log=task.thresh:debug
+
