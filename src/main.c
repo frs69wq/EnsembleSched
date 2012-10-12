@@ -43,13 +43,13 @@ int main(int argc, char **argv) {
   //TODO add command line arguments: utilization thresholds
   while (1){
     static struct option long_options[] = {
-        {"alg", required_argument, 0, 'a'},
-        {"platform", required_argument, 0, 'b'},
-        {"dax", required_argument, 0, 'c'},
-        {"priority", required_argument, 0, 'd'},
-        {"deadline", required_argument, 0, 'e'},
-        {"budget", required_argument, 0, 'f'},
-        {"price", required_argument, 0, 'g'},
+        {"alg", 1, 0, 'a'},
+        {"platform", 1, 0, 'b'},
+        {"dax", 1, 0, 'c'},
+        {"priority", 1, 0, 'd'},
+        {"deadline", 1, 0, 'e'},
+        {"budget", 1, 0, 'f'},
+        {"price", 1, 0, 'g'},
         {0, 0, 0, 0}
     };
 
