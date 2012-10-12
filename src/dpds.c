@@ -24,17 +24,16 @@ XBT_LOG_NEW_DEFAULT_SUBCATEGORY(dpds, EnsembleSched,
 /* Dynamic provisioning algorithm for DPDS
  * Requires
  *   c: consumed budget
- *   b: total budget
- *   d: deadline
- *   p: price
  *   t: current time
- *   uh: upper utilization threshold
- *   ul: lower utilization threshold
- *   vmax: maximum number of VMs
  *   nVM: number of VMs initially started (added parameter)
+ *   budget (in scheduling_globals_t)
+ *   deadline (in scheduling_globals_t)
+ *   price (in scheduling_globals_t)
+ *   uh: upper utilization threshold (in scheduling_globals_t)
+ *   ul: lower utilization threshold (in scheduling_globals_t)
+ *   vmax: maximum number of VMs (in scheduling_globals_t)
  */
-void dpds_provision(double c, double b, double d, double p, double t,
-                    double uh, double ul, double vmax, int nVM){
+void dpds_provision(double c, double t, int nVM, scheduling_globals_t globals){
   unsigned int i;
   double u;
   xbt_dynar_t VR = get_running_VMs();
@@ -44,18 +43,19 @@ void dpds_provision(double c, double b, double d, double p, double t,
   SD_workstation_t v;
   int nT = 0;
 
-  if (((b-c) < (xbt_dynar_length(VC)*p)) || (t>d)){
-    nT = xbt_dynar_length(VR) - floor((b-c)/p);
+  if (((globals->budget-c) < (xbt_dynar_length(VC)*globals->price)) ||
+      (t>globals->deadline)){
+    nT = xbt_dynar_length(VR) - floor((globals->budget-c)/globals->price);
     VT = find_active_VMs_to_stop(nT, VC);
     xbt_dynar_foreach(VT, i, v)
       SD_workstation_terminate(v);
     xbt_dynar_free_container(&VT);
   } else {
     u = compute_current_VM_utilization();
-    if ((u > uh) && (xbt_dynar_length(VR) < (vmax*nVM))){
+    if ((u > globals->uh) && (xbt_dynar_length(VR) < (globals->vmax*nVM))){
       v = find_inactive_VM_to_start();
       SD_workstation_start(v);
-    } else if (u < ul) {
+    } else if (u < globals->ul) {
       VI = get_idle_VMs();
       nT = ceil(xbt_dynar_length(VI)/2.);
       VT = find_active_VMs_to_stop(nT, VI);
