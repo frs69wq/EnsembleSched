@@ -97,14 +97,15 @@ void dpds_schedule(xbt_dynar_t daxes, scheduling_globals_t globals){
   while (first_call || !xbt_dynar_is_empty((changed =
          SD_simulate(globals->deadline-SD_get_clock())))){
     first_call=0;
-    if (globals->deadline == SD_get_clock()){
+    if (globals->deadline <= SD_get_clock()){
       XBT_INFO("Time's up! Deadline was reached at %.3f", SD_get_clock());
       break;
     }
     XBT_VERB("Simulation stopped at %.3f. %lu tasks changed", SD_get_clock(),
         xbt_dynar_length(changed));
     xbt_dynar_foreach(changed, i, t){
-       if (SD_task_get_state(t) == SD_DONE){
+       if (SD_task_get_kind(t) == SD_TASK_COMP_SEQ &&
+           SD_task_get_state(t) == SD_DONE){
          XBT_VERB("%s (%s) has completed", SD_task_get_name(t),
              SD_task_get_dax_name(t));
 
