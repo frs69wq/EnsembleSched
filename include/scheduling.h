@@ -24,6 +24,7 @@ typedef struct _scheduling_globals *scheduling_globals_t;
 struct _scheduling_globals {
   alg_t alg;
   method_t priority_method;
+  double period;
 
   double budget;
   double deadline;

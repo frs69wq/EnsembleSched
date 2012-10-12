@@ -50,6 +50,7 @@ int main(int argc, char **argv) {
         {"deadline", 1, 0, 'e'},
         {"budget", 1, 0, 'f'},
         {"price", 1, 0, 'g'},
+        {"period", 1, 0, 'h'},
         {0, 0, 0, 0}
     };
 
@@ -126,6 +127,9 @@ int main(int argc, char **argv) {
       break;
     case 'g':
       globals->price = atof(optarg);
+      break;
+    case 'h':
+      globals->period = atof(optarg);
       break;
     }
   }
