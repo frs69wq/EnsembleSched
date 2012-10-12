@@ -13,10 +13,15 @@ The command line accepts many parameters:
                               simgrid format
 * --dax <file>: description of a workflow in the Pegasus format (DAX).
                 Multiple --dax flags can be used
+* --priority <random|sorted>: method to assign priority to workflows
+                              (default value: random)
 * --budget <double>: budget in $ (or any other currency)
 * --deadline <double>: deadline before which a maximum of workflows
                        have to complete expressed in seconds
-* --price <double>: hourly cost of a single VM in $/h (default value 1)
+* --price <double>: hourly cost of a single VM in $/h 
+                    (default value: 1) 
+* --period <double>: time in seconds between two dynamic provisioning
+                     of resources (default value: 3600.)
 
 Typical command line:
 ./EnsembleSched --alg DPDS --platform cluster.xml \
