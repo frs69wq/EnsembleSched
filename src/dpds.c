@@ -69,7 +69,7 @@ void dpds_provision(double c, double b, double d, double p, double t,
   xbt_dynar_free_container(&VC);
 }
 
-void dpds_schedule(xbt_dynar_t daxes, double deadline){
+void dpds_schedule(xbt_dynar_t daxes, scheduling_globals_t globals){
   unsigned int i, j;
   int first_call = 1;
   xbt_dynar_t priority_queue = xbt_dynar_new(sizeof (SD_task_t), NULL);
@@ -94,11 +94,20 @@ void dpds_schedule(xbt_dynar_t daxes, double deadline){
    */
   xbt_dynar_sort(priority_queue, daxPriorityCompareTasks);
 
-  while (!xbt_dynar_is_empty((changed = SD_simulate(deadline-SD_get_clock())))
-         || first_call){
+  while (first_call || !xbt_dynar_is_empty((changed =
+         SD_simulate(globals->deadline-SD_get_clock())))){
     first_call=0;
+    if (globals->deadline == SD_get_clock()){
+      XBT_INFO("Time's up! Deadline was reached at %.3f", SD_get_clock());
+      break;
+    }
+    XBT_VERB("Simulation stopped at %.3f. %lu tasks changed", SD_get_clock(),
+        xbt_dynar_length(changed));
     xbt_dynar_foreach(changed, i, t){
        if (SD_task_get_state(t) == SD_DONE){
+         XBT_VERB("%s (%s) has completed", SD_task_get_name(t),
+             SD_task_get_dax_name(t));
+
          /* get the workstation used to compute this task */
          v = (SD_task_get_workstation_list(t))[0];
 
@@ -107,14 +116,22 @@ void dpds_schedule(xbt_dynar_t daxes, double deadline){
          xbt_dynar_push(idleVMs, &v);
 
          /* add ready children of t to the priority queue */
-         ready_children = SD_task_get_ready_children(t); //TODO
-         xbt_dynar_foreach(ready_children, j, child)
-           xbt_dynar_push(priority_queue, &child);
+         ready_children = SD_task_get_ready_children(t);
+         XBT_DEBUG("%s has %lu child(ren) to add to the priority queue",
+             SD_task_get_name(t),xbt_dynar_length(ready_children));
+         xbt_dynar_foreach(ready_children, j, child){
+           if (!xbt_dynar_member(priority_queue, &child))
+             xbt_dynar_push(priority_queue, &child);
+         }
          xbt_dynar_free_container(&ready_children);
        }
-       /* Sort again the priority queue as new tasks have been added. */
-       xbt_dynar_sort(priority_queue, daxPriorityCompareTasks);
     }
+    /* Sort again the priority queue as new tasks have been added. */
+    xbt_dynar_sort(priority_queue, daxPriorityCompareTasks);
+    xbt_dynar_foreach(priority_queue,j,child)
+      XBT_DEBUG("%s is in priority queue", SD_task_get_name(child));
+
+    xbt_dynar_free_container(&changed); /* avoid memory leaks */
 
     while ((!xbt_dynar_is_empty(idleVMs)) &&
            (!xbt_dynar_is_empty(priority_queue))){
@@ -126,8 +143,11 @@ void dpds_schedule(xbt_dynar_t daxes, double deadline){
        */
       xbt_dynar_pop(priority_queue, &t);
 
+      XBT_VERB("Schedule %s (%s) on %s", SD_task_get_name(t),
+          SD_task_get_dax_name(t),
+          SD_workstation_get_name(v));
       SD_task_schedulel(t, 1, v);
-      handle_resource_dependency(v, t);
+      //handle_resource_dependency(v, t);
       SD_workstation_set_to_busy(v);
      }
   }
@@ -135,6 +155,8 @@ void dpds_schedule(xbt_dynar_t daxes, double deadline){
   /* Cleaning step once simulation is over */
   xbt_dynar_free_container(&idleVMs);
   xbt_dynar_free_container(&priority_queue);
+  xbt_dynar_free_container(&changed);
+
 }
 
 void dpds_init(xbt_dynar_t daxes, scheduling_globals_t globals){
@@ -150,5 +172,5 @@ void dpds_init(xbt_dynar_t daxes, scheduling_globals_t globals){
   for (i = 0; i < nVM; i++){
     SD_workstation_start(workstations[i]);
   }
-
+  dpds_schedule(daxes, globals);
 }
