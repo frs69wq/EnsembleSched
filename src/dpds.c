@@ -75,7 +75,7 @@ void dpds_provision(double c, double t, int nVM, scheduling_globals_t globals){
  */
 void dpds_schedule(xbt_dynar_t daxes, scheduling_globals_t globals){
   unsigned int i, j;
-  int first_call = 1;
+  int first_call = 1, step = 1;
   xbt_dynar_t priority_queue;
   xbt_dynar_t idleVMs = NULL;
   xbt_dynar_t ready_children = NULL;
@@ -105,15 +105,24 @@ void dpds_schedule(xbt_dynar_t daxes, scheduling_globals_t globals){
   /* Remark: order is changed w.r.t to the article (lines 13-15 then lines 8-12)
    * but not the behavior as there is a specific first call.
    */
-  while (first_call || !xbt_dynar_is_empty((changed =
-         SD_simulate(globals->deadline-SD_get_clock())))){
+  do{
+  while (first_call || (step*globals->period - SD_get_clock())<0.00001 ||
+      !xbt_dynar_is_empty((changed =
+          SD_simulate(MIN(step*globals->period,
+              globals->deadline)-SD_get_clock())))){
     /* Apart of the first specific call, the simulation is suspended when
      *  - a watchpoint is reached, meaning a compute task has finished
      *  - the deadline is met
      */
-
+    XBT_INFO("%.3f %.3f",step*globals->period,
+        step*globals->period -SD_get_clock());
     /* Handling specific stopping conditions */
     first_call=0;
+    if (((step*globals->period)-SD_get_clock())<0.00001){
+      XBT_INFO("End of 1h period. Start a new one");
+      step++;
+      continue;
+    }
     if (globals->deadline <= SD_get_clock()){
       XBT_INFO("Time's up! Deadline was reached at %.3f", SD_get_clock());
       break;
@@ -121,9 +130,6 @@ void dpds_schedule(xbt_dynar_t daxes, scheduling_globals_t globals){
 
     /* Typical loop body*/
     /* Action on completion of a task (lines 13 to 15) */
-    XBT_VERB("Simulation stopped at %.3f. %lu tasks changed",
-        SD_get_clock(),
-        xbt_dynar_length(changed));
 
     xbt_dynar_foreach(changed, i, t){
        if (SD_task_get_kind(t) == SD_TASK_COMP_SEQ &&
@@ -177,7 +183,7 @@ void dpds_schedule(xbt_dynar_t daxes, scheduling_globals_t globals){
       handle_resource_dependency(v, t);
      }
   }
-
+  } while (SD_get_clock()< globals->deadline);
   /* Cleaning step once simulation is over */
   xbt_dynar_free_container(&idleVMs);
   xbt_dynar_free_container(&priority_queue);
