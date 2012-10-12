@@ -8,6 +8,10 @@
 #ifndef SCHEDULING_H_
 #define SCHEDULING_H_
 
+#ifndef MIN
+#  define MIN(x,y) ((x) < (y) ? (x) : (y))
+#endif
+
 typedef enum {
   DPDS=0,
   WADPDS,
