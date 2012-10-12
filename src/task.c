@@ -104,7 +104,7 @@ xbt_dynar_t SD_task_get_ready_children(SD_task_t t){
       children = SD_task_get_children(output);
       xbt_dynar_get_cpy(children, 0, &child);
       if (xbt_dynar_member(ready_children, &child)){
-        XBT_INFO("%s already seen, ignore", SD_task_get_name(child));
+        XBT_DEBUG("%s already seen, ignore", SD_task_get_name(child));
         continue;
       }
       if (SD_task_get_kind(child) == SD_TASK_COMP_SEQ &&
@@ -116,7 +116,7 @@ xbt_dynar_t SD_task_get_ready_children(SD_task_t t){
       xbt_dynar_free_container(&children); /* avoid memory leaks */
     } else { /* Control dependency */
       if (xbt_dynar_member(ready_children, &output)){
-        XBT_INFO("%s already seen, ignore", SD_task_get_name(output));
+        XBT_DEBUG("%s already seen, ignore", SD_task_get_name(output));
         continue;
       }
       if (SD_task_get_kind(output) == SD_TASK_COMP_SEQ &&
