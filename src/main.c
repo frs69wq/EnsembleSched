@@ -61,8 +61,6 @@ int main(int argc, char **argv) {
     if (flag == -1)
       break;
 
-//          (flag = getopt (argc, argv, "a:p:d:")) != -1)
-
     switch (flag) {
     case 0:
       /* If this option set a flag, do nothing else now. */
