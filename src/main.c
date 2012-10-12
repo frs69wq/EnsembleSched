@@ -8,6 +8,7 @@
 #include <ctype.h>
 #include <stdio.h>
 #include <stdlib.h>
+#include <math.h>
 
 #include "simdag/simdag.h"
 #include "xbt.h"
