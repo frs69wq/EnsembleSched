@@ -64,10 +64,72 @@ int daxPriorityCompareTasks(const void * t1, const void *t2){
     return 1;
 }
 
+int SD_task_is_ready(SD_task_t task){
+  unsigned int i;
+  int is_ready = 1;
+  xbt_dynar_t parents, grand_parents;
+  SD_task_t parent, grand_parent;
+
+  parents = SD_task_get_parents(task);
+
+  if (xbt_dynar_length(parents)) {
+    xbt_dynar_foreach(parents, i, parent){
+      grand_parents = SD_task_get_parents(parent);
+      if (SD_task_get_kind(parent) == SD_TASK_COMM_E2E) {
+        xbt_dynar_get_cpy(grand_parents, 0, &grand_parent);
+        if (SD_task_get_state(grand_parent)<SD_SCHEDULED) {
+          is_ready =0;
+          xbt_dynar_free_container(&grand_parents);
+          break;
+        }
+      }
+      xbt_dynar_free_container(&grand_parents);
+    }
+  }
+  xbt_dynar_free_container(&parents);
+
+  return is_ready;
+}
 
 xbt_dynar_t SD_task_get_ready_children(SD_task_t t){
-  xbt_dynar_t ready_children=NULL;
-  //TODO
+  unsigned int i;
+  xbt_dynar_t children=NULL, ready_children;
+  xbt_dynar_t output_transfers = SD_task_get_children(t);
+  SD_task_t output, child;
+
+  ready_children = xbt_dynar_new(sizeof(SD_task_t), NULL);
+
+  xbt_dynar_foreach(output_transfers, i, output){
+    if (SD_task_get_kind(output) == SD_TASK_COMM_E2E) {
+      children = SD_task_get_children(output);
+      xbt_dynar_get_cpy(children, 0, &child);
+      if (xbt_dynar_member(ready_children, &child)){
+        XBT_INFO("%s already seen, ignore", SD_task_get_name(child));
+        continue;
+      }
+      if (SD_task_get_kind(child) == SD_TASK_COMP_SEQ &&
+          (SD_task_get_state(child) == SD_NOT_SCHEDULED ||
+           SD_task_get_state(child) == SD_SCHEDULABLE)&&
+           SD_task_is_ready(child)){
+        xbt_dynar_push(ready_children, &child);
+      }
+      xbt_dynar_free_container(&children); /* avoid memory leaks */
+    } else { /* Control dependency */
+      if (xbt_dynar_member(ready_children, &output)){
+        XBT_INFO("%s already seen, ignore", SD_task_get_name(output));
+        continue;
+      }
+      if (SD_task_get_kind(output) == SD_TASK_COMP_SEQ &&
+          (SD_task_get_state(output) == SD_NOT_SCHEDULED ||
+           SD_task_get_state(output) == SD_SCHEDULABLE)&&
+           SD_task_is_ready(output)){
+        xbt_dynar_push(ready_children, &output);
+      }
+    }
+  }
+
+  xbt_dynar_free_container(&output_transfers); /* avoid memory leaks */
+
   return ready_children;
 }
 
