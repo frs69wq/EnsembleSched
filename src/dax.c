@@ -56,6 +56,16 @@ void shuffle(int *array, size_t n){
   }
 }
 
+
+/* Assign priorities to DAXes according to a user specified method. Priorities
+ * are unique integer values taken in [0;#daxes].
+ *  - RANDOM priorities: the array of possible priorities is shuffled using the
+ *    Knuth shuffle. Then priorities are assigned to daxes in order.
+ *  - SORTED priorities: Daxes are first sorted by ascending size. Then
+ *    increasing priorities are assigned according to this order.
+ * Remark: the size of a dax used by the comparison function includes data
+ * transfer tasks.
+ */
 void assign_dax_priorities(xbt_dynar_t daxes, method_t method){
   int *priorities;
   unsigned int i, j;
