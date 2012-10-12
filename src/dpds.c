@@ -69,22 +69,29 @@ void dpds_provision(double c, double b, double d, double p, double t,
   xbt_dynar_free_container(&VC);
 }
 
+
+/* (adapted) Implementation of Algortihm 2 on page 3 of the paper by
+ * Malawski et al. Use the global scheduling data structure for convenience.
+ */
 void dpds_schedule(xbt_dynar_t daxes, scheduling_globals_t globals){
   unsigned int i, j;
   int first_call = 1;
-  xbt_dynar_t priority_queue = xbt_dynar_new(sizeof (SD_task_t), NULL);
+  xbt_dynar_t priority_queue;
   xbt_dynar_t idleVMs = NULL;
   xbt_dynar_t ready_children = NULL;
   xbt_dynar_t current_dax = NULL, changed = NULL;
   SD_task_t root, t, child;
   SD_workstation_t v;
 
+  /* Initialisation step: lines 2 to 6 */
+  priority_queue = xbt_dynar_new(sizeof (SD_task_t), NULL);
   idleVMs = get_idle_VMs();
 
   xbt_dynar_foreach(daxes, i, current_dax){
     root = get_root(current_dax);
     xbt_dynar_push(priority_queue, &root);
   }
+
   /* Sort the priority queue by increasing value of DAX priority.
    * Tasks that belong to the most important DAX are located toward the end of
    * the dynar. xbt_dynar_pop then return the most important task.
@@ -94,19 +101,34 @@ void dpds_schedule(xbt_dynar_t daxes, scheduling_globals_t globals){
    */
   xbt_dynar_sort(priority_queue, daxPriorityCompareTasks);
 
+  /* Main scheduling loop: lines 7 to 16 */
+  /* Remark: order is changed w.r.t to the article (lines 13-15 then lines 8-12)
+   * but not the behavior as there is a specific first call.
+   */
   while (first_call || !xbt_dynar_is_empty((changed =
          SD_simulate(globals->deadline-SD_get_clock())))){
+    /* Apart of the first specific call, the simulation is suspended when
+     *  - a watchpoint is reached, meaning a compute task has finished
+     *  - the deadline is met
+     */
+
+    /* Handling specific stopping conditions */
     first_call=0;
     if (globals->deadline <= SD_get_clock()){
       XBT_INFO("Time's up! Deadline was reached at %.3f", SD_get_clock());
       break;
     }
-    XBT_VERB("Simulation stopped at %.3f. %lu tasks changed", SD_get_clock(),
+
+    /* Typical loop body*/
+    /* Action on completion of a task (lines 13 to 15) */
+    XBT_VERB("Simulation stopped at %.3f. %lu tasks changed",
+        SD_get_clock(),
         xbt_dynar_length(changed));
+
     xbt_dynar_foreach(changed, i, t){
        if (SD_task_get_kind(t) == SD_TASK_COMP_SEQ &&
            SD_task_get_state(t) == SD_DONE){
-         XBT_VERB("%s (%s) has completed", SD_task_get_name(t),
+         XBT_VERB("%s (from %s) has completed", SD_task_get_name(t),
              SD_task_get_dax_name(t));
 
          /* get the workstation used to compute this task */
@@ -118,38 +140,41 @@ void dpds_schedule(xbt_dynar_t daxes, scheduling_globals_t globals){
 
          /* add ready children of t to the priority queue */
          ready_children = SD_task_get_ready_children(t);
-         XBT_DEBUG("%s has %lu child(ren) to add to the priority queue",
-             SD_task_get_name(t),xbt_dynar_length(ready_children));
          xbt_dynar_foreach(ready_children, j, child){
+           /* Ensure that a task is not added more than once to the queue. May
+            * occur as soon as a task as more than one parent. */
            if (!xbt_dynar_member(priority_queue, &child))
              xbt_dynar_push(priority_queue, &child);
          }
-         xbt_dynar_free_container(&ready_children);
+         xbt_dynar_free_container(&ready_children); /* avoid memory leaks */
        }
     }
+    xbt_dynar_free_container(&changed); /* avoid memory leaks */
+
     /* Sort again the priority queue as new tasks have been added. */
     xbt_dynar_sort(priority_queue, daxPriorityCompareTasks);
+    /* Display the current contents of the priority queue as debug information*/
     xbt_dynar_foreach(priority_queue,j,child)
       XBT_DEBUG("%s is in priority queue", SD_task_get_name(child));
 
-    xbt_dynar_free_container(&changed); /* avoid memory leaks */
-
+    /* Task scheduling part (lines 8 to 12) */
     while ((!xbt_dynar_is_empty(idleVMs)) &&
-           (!xbt_dynar_is_empty(priority_queue))){
+        (!xbt_dynar_is_empty(priority_queue))){
 
-      /* This call removes v from the list of idleVMs */
+      /* Remove a random VM from the list of idleVMs and set it as busy */
       v = select_random(idleVMs);
-      /* Pop the last task from the dynar, i.e. one belonging to the DAX of
-       * highest priority.
-       */
+      SD_workstation_set_to_busy(v);
+
+      /* Pop the last task from the queue, i.e. one belonging to the DAX of
+       * highest priority. */
       xbt_dynar_pop(priority_queue, &t);
 
       XBT_VERB("Schedule %s (%s) on %s", SD_task_get_name(t),
           SD_task_get_dax_name(t),
           SD_workstation_get_name(v));
+
       SD_task_schedulel(t, 1, v);
-      //handle_resource_dependency(v, t);
-      SD_workstation_set_to_busy(v);
+      handle_resource_dependency(v, t);
      }
   }
 
@@ -157,7 +182,6 @@ void dpds_schedule(xbt_dynar_t daxes, scheduling_globals_t globals){
   xbt_dynar_free_container(&idleVMs);
   xbt_dynar_free_container(&priority_queue);
   xbt_dynar_free_container(&changed);
-
 }
 
 void dpds_init(xbt_dynar_t daxes, scheduling_globals_t globals){
