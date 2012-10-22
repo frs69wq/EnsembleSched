@@ -44,21 +44,32 @@ void dpds_provision(double c, double t, scheduling_globals_t globals){
   int nT = 0;
 
   if (((globals->budget-c) < (xbt_dynar_length(VC)*globals->price)) ||
-      (t>globals->deadline)){
+      (t > globals->deadline)){
     nT = xbt_dynar_length(VR) - floor((globals->budget-c)/globals->price);
+
+    XBT_VERB("$%f remain and %lu VMs are close to their billing cycle"
+        " Have to stop %d VMs", globals->budget-c,xbt_dynar_length(VC), nT);
+
     VT = find_active_VMs_to_stop(nT, VC);
     xbt_dynar_foreach(VT, i, v)
       SD_workstation_terminate(v);
     xbt_dynar_free_container(&VT);
   } else {
     u = compute_current_VM_utilization();
+    XBT_VERB("Current utilization: %f", u);
+    XBT_VERB("Under nVM (%lu < %f)?",xbt_dynar_length(VR),
+        (globals->vmax*globals->nVM));
+
     if ((u > globals->uh) &&
         (xbt_dynar_length(VR) < (globals->vmax*globals->nVM))){
+      XBT_VERB("Utilization is above upper threshold and some VMs have been"
+          "stopped before. Start a new VM ...");
       v = find_inactive_VM_to_start();
       SD_workstation_start(v);
     } else if (u < globals->ul) {
       VI = get_idle_VMs();
       nT = ceil(xbt_dynar_length(VI)/2.);
+      XBT_VERB("Utilization is under lower threshold. Have to stop %d VMs", nT);
       VT = find_active_VMs_to_stop(nT, VI);
       xbt_dynar_foreach(VT, i, v)
         SD_workstation_terminate(v);
