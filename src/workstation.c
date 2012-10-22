@@ -196,10 +196,11 @@ xbt_dynar_t get_ending_billing_cycle_VMs(){
  *    set than expected.
  * 2) Straightforward selection of the VMs in the set. Just pick the how_many
  *    first ones without any consideration of the time remaining until the next
- *    hourly billing cycle.
+ *    hourly billing cycle. Just check if the VM is not currently executing a
+ *    task
  */
 xbt_dynar_t find_active_VMs_to_stop(int how_many, xbt_dynar_t source){
-  int i;
+  int i, found;
   long unsigned int source_size = xbt_dynar_length(source);
   xbt_dynar_t to_stop = xbt_dynar_new(sizeof(SD_workstation_t), NULL);
   SD_workstation_t v;
@@ -210,13 +211,26 @@ xbt_dynar_t find_active_VMs_to_stop(int how_many, xbt_dynar_t source){
         source_size, source_size);
     how_many = source_size;
   }
-  for (i=0; i<how_many; i++){
-    /* No advanced selection process. Just pick the how_many first VMs in the
-     * source set.
+
+  i = 0;
+  found = 0;
+
+  while(found < how_many && i < xbt_dynar_length(source)){
+    /* No advanced selection process. Just pick the how_many first idle VMs
+     * in the source set.
      */
     xbt_dynar_get_cpy(source, i, &v);
-    xbt_dynar_push(to_stop, &v);
+    WorkstationAttribute attr = SD_workstation_get_data(v);
+    if (!attr->idle_busy){
+      xbt_dynar_push(to_stop, &v);
+      found++;
+    }
+    i++;
   }
+
+  if (found < how_many)
+    XBT_WARN("Trying to terminate too many VMs, some are busy.."
+        " Change the number of VMs to terminate to %d", found);
 
   return to_stop;
 }
