@@ -94,6 +94,12 @@ double compute_budget_consumption(){
   for(i=0;i<nworkstations;i++){
     attr = SD_workstation_get_data(workstations[i]);
     consumed_budget += attr->total_cost;
+    if (attr->on_off){
+      XBT_DEBUG("%s : Account for %d consumed hours",
+          SD_workstation_get_name(workstations[i]),
+          (int)(SD_get_clock()-attr->start_time)/3600);
+      consumed_budget += (((int)(SD_get_clock()-attr->start_time)/3600))*attr->price;
+    }
   }
 
   return consumed_budget;
