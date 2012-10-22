@@ -61,6 +61,8 @@ void dpds_provision(double c, double t, scheduling_globals_t globals){
 
     if ((u > globals->uh) &&
         (xbt_dynar_length(VR) < (globals->vmax*globals->nVM))){
+      /* WARNING: a VM can be start while the budget is already spent!
+       * An extra test should be added */
       XBT_VERB("%.2f is above upper threshold and some VMs have been"
           " stopped before (%lu < %f). Start a new VM ...",
           u, xbt_dynar_length(VR), (globals->vmax*globals->nVM));
