@@ -32,10 +32,12 @@ struct _scheduling_globals {
 
   double budget;
   double deadline;
-  double price;        /* VM hourly cost*/
+  double price;       /* VM hourly cost*/
   double uh;          /* upper utilization threshold */
   double ul;          /* lower utilization threshold */
   double vmax;
+
+  int nVM;            /* Number of VMs that have been initially started */
 };
 
 scheduling_globals_t new_scheduling_globals();
