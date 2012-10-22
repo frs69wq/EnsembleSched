@@ -130,6 +130,7 @@ void dpds_schedule(xbt_dynar_t daxes, scheduling_globals_t globals){
         XBT_DEBUG("End of a period of %.0f seconds. Start a new one",
             globals->period);
         step++;
+        xbt_dynar_free_container(&changed); /* avoid memory leak */
         continue;
       }
       if (globals->deadline <= SD_get_clock()){
