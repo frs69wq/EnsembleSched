@@ -23,6 +23,9 @@ scheduling_globals_t new_scheduling_globals(){
   globals->price = 1.0;
   globals->budget=0.;
   globals->deadline=0.;
+  globals->uh = 80;
+  globals->ul = 40;
+  globals->vmax = 1.0;
 
   return globals;
 }
