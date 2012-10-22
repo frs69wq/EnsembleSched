@@ -17,6 +17,8 @@ struct _WorkstationAttribute {
   int on_off;     /* 1 = ON, 0 = OFF */
   int idle_busy;  /* 1 = Busy, 0 = idle */
   double start_time;
+
+  double total_cost;
   //TODO add necessary attributes
 };
 
@@ -44,6 +46,7 @@ void SD_workstation_set_to_busy(SD_workstation_t);
 int nameCompareWorkstations(const void *, const void *);
 
 /* Other functions needed by scheduling algorithms */
+void SD_workstation_bill(SD_workstation_t, double, double);
 int is_on_and_idle(SD_workstation_t);
 xbt_dynar_t get_idle_VMs();
 xbt_dynar_t get_running_VMs();

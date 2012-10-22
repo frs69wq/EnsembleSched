@@ -20,8 +20,9 @@ XBT_LOG_NEW_DEFAULT_SUBCATEGORY(workstation, EnsembleSched,
 /*****************************************************************************/
 
 void SD_workstation_allocate_attribute(SD_workstation_t workstation){
-  void *data;
+  WorkstationAttribute data;
   data = calloc(1,sizeof(struct _WorkstationAttribute));
+  data->total_cost = 0;
   SD_workstation_set_data(workstation, data);
 }
 
@@ -99,6 +100,19 @@ int nameCompareWorkstations(const void *n1, const void *n2) {
 /*****************************************************************************/
 /*****************************************************************************/
 
+/* Do some accounting. The time (in seconds) spent since the last time
+ * workstation/VM was activated (state set to ON) is rounded up and multiplied
+ * by the hour price.
+ */
+void SD_workstation_bill(SD_workstation_t workstation, double now,
+                         double price){
+  WorkstationAttribute attr = SD_workstation_get_data(workstation);
+  double duration;
+
+  duration = now - attr->start_time;
+  attr->total_cost += ((((int) duration / 3600)+1) * price);
+  SD_workstation_set_data(workstation, attr);
+}
 
 /* Simple function to know whether a workstation/VM can accept tasks for
  * execution. Has to be ON and idle for that.

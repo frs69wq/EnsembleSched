@@ -75,3 +75,23 @@ void handle_resource_dependency(SD_workstation_t workstation, SD_task_t task){
    * workstation */
   SD_workstation_set_last_scheduled_task(workstation, task);
 }
+
+
+/* Determine how much money has already been spent. Each workstation/VM has an
+ * attribute that sums the cost (#hours*price) for each period in which the VM
+ * is on.
+ */
+double compute_budget_consumption(){
+  double consumed_budget = 0.0;
+  int i=0;
+  WorkstationAttribute attr;
+  const SD_workstation_t *workstations = SD_workstation_get_list ();
+  int nworkstations = SD_workstation_get_number ();
+
+  for(i=0;i<nworkstations;i++){
+    attr = SD_workstation_get_data(workstations[i]);
+    consumed_budget += attr->total_cost;
+  }
+
+  return consumed_budget;
+}

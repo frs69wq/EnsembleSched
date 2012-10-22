@@ -47,8 +47,11 @@ void dpds_provision(double c, double t, scheduling_globals_t globals){
       (t>globals->deadline)){
     nT = xbt_dynar_length(VR) - floor((globals->budget-c)/globals->price);
     VT = find_active_VMs_to_stop(nT, VC);
-    xbt_dynar_foreach(VT, i, v)
+    xbt_dynar_foreach(VT, i, v){
+      /* Make some accounting for this VM before stopping it*/
+      SD_workstation_bill(v, t, globals->price);
       SD_workstation_terminate(v);
+    }
     xbt_dynar_free_container(&VT);
   } else {
     u = compute_current_VM_utilization();
@@ -60,8 +63,11 @@ void dpds_provision(double c, double t, scheduling_globals_t globals){
       VI = get_idle_VMs();
       nT = ceil(xbt_dynar_length(VI)/2.);
       VT = find_active_VMs_to_stop(nT, VI);
-      xbt_dynar_foreach(VT, i, v)
+      xbt_dynar_foreach(VT, i, v){
+        /* Make some accounting for this VM before stopping it*/
+        SD_workstation_bill(v, t, globals->price);
         SD_workstation_terminate(v);
+      }
       xbt_dynar_free_container(&VI);
       xbt_dynar_free_container(&VT);
     }
@@ -71,13 +77,14 @@ void dpds_provision(double c, double t, scheduling_globals_t globals){
 }
 
 
-/* (adapted) Implementation of Algortihm 2 on page 3 of the paper by
+/* (adapted) Implementation of Algorithm 2 on page 3 of the paper by
  * Malawski et al. Use the global scheduling data structure for convenience.
  */
 void dpds_schedule(xbt_dynar_t daxes, scheduling_globals_t globals){
   unsigned int i, j;
   int first_call = 1, step = 1;
   int completed_daxes = 0;
+  double consumed_budget;
   xbt_dynar_t priority_queue;
   xbt_dynar_t idleVMs = NULL;
   xbt_dynar_t ready_children = NULL;
@@ -85,7 +92,7 @@ void dpds_schedule(xbt_dynar_t daxes, scheduling_globals_t globals){
   SD_task_t root, t, child;
   SD_workstation_t v;
 
-  /* Initialisation step: lines 2 to 6 */
+  /* Initialization step: lines 2 to 6 */
   priority_queue = xbt_dynar_new(sizeof (SD_task_t), NULL);
   idleVMs = get_idle_VMs();
 
@@ -105,8 +112,8 @@ void dpds_schedule(xbt_dynar_t daxes, scheduling_globals_t globals){
 
   do{
     /* Main scheduling loop: lines 7 to 16 */
-    /* Remark: order is changed w.r.t to the article (lines 13-15 then lines 8-12)
-     * but not the behavior as there is a specific first call.
+    /* Remark: order is changed w.r.t to the article (lines 13-15 then
+     * lines 8-12) but not the behavior as there is a specific first call.
      */
 
     /* This do-while external loop is to ensure that we call the main scheduling
@@ -134,9 +141,9 @@ void dpds_schedule(xbt_dynar_t daxes, scheduling_globals_t globals){
         xbt_dynar_free_container(&changed); /* avoid memory leak */
 
         /* Compute current budget consumption */
-        //TODO current_budget = compute_budget_consumption();
+        consumed_budget = compute_budget_consumption();
         /* Call dpds_provision*/
-        //TODO dpds_provision(current_budget,SD_get_clock(), globals);
+        dpds_provision(consumed_budget,SD_get_clock(), globals);
         continue;
       }
       if (globals->deadline <= SD_get_clock()){
