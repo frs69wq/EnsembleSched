@@ -21,8 +21,8 @@ scheduling_globals_t new_scheduling_globals(){
   globals->priority_method = RANDOM;
   globals->period = 3600.0;
   globals->price = 1.0;
-  globals->budget=0.;
-  globals->deadline=0.;
+  globals->budget = 0.;
+  globals->deadline = 0.;
   globals->uh = 80;
   globals->ul = 40;
   globals->vmax = 1.0;
