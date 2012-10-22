@@ -157,6 +157,10 @@ int main(int argc, char **argv) {
          SD_task_get_dax_priority(task));
   }
 
+  /* Assign price to workstation/VM (for sake of simplicity) */
+  for(cursor=0; cursor<total_nworkstations; cursor++)
+    SD_workstation_set_price(workstations[cursor], globals->price);
+
   switch(globals->alg){
   case DPDS:
     dpds_init(daxes, globals);

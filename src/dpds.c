@@ -47,11 +47,8 @@ void dpds_provision(double c, double t, scheduling_globals_t globals){
       (t>globals->deadline)){
     nT = xbt_dynar_length(VR) - floor((globals->budget-c)/globals->price);
     VT = find_active_VMs_to_stop(nT, VC);
-    xbt_dynar_foreach(VT, i, v){
-      /* Make some accounting for this VM before stopping it*/
-      SD_workstation_bill(v, t, globals->price);
+    xbt_dynar_foreach(VT, i, v)
       SD_workstation_terminate(v);
-    }
     xbt_dynar_free_container(&VT);
   } else {
     u = compute_current_VM_utilization();
@@ -63,11 +60,8 @@ void dpds_provision(double c, double t, scheduling_globals_t globals){
       VI = get_idle_VMs();
       nT = ceil(xbt_dynar_length(VI)/2.);
       VT = find_active_VMs_to_stop(nT, VI);
-      xbt_dynar_foreach(VT, i, v){
-        /* Make some accounting for this VM before stopping it*/
-        SD_workstation_bill(v, t, globals->price);
+      xbt_dynar_foreach(VT, i, v)
         SD_workstation_terminate(v);
-      }
       xbt_dynar_free_container(&VI);
       xbt_dynar_free_container(&VT);
     }
@@ -142,7 +136,10 @@ void dpds_schedule(xbt_dynar_t daxes, scheduling_globals_t globals){
 
         /* Compute current budget consumption */
         consumed_budget = compute_budget_consumption();
+        XBT_VERB("$%f has already been spent", consumed_budget);
+
         /* Call dpds_provision*/
+        XBT_INFO("Dynamic Provisioning at time %f", SD_get_clock());
         dpds_provision(consumed_budget,SD_get_clock(), globals);
         continue;
       }

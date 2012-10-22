@@ -31,6 +31,14 @@ void SD_workstation_free_attribute(SD_workstation_t workstation){
   SD_workstation_set_data(workstation, NULL);
 }
 
+void SD_workstation_set_price(SD_workstation_t workstation, double price){
+  WorkstationAttribute attr =
+    (WorkstationAttribute) SD_workstation_get_data(workstation);
+  attr->price = price;
+  SD_workstation_set_data(workstation, attr);
+}
+
+
 double SD_workstation_get_available_at( SD_workstation_t workstation){
   WorkstationAttribute attr =
     (WorkstationAttribute) SD_workstation_get_data(workstation);
@@ -63,12 +71,20 @@ void SD_workstation_start(SD_workstation_t workstation){
     (WorkstationAttribute) SD_workstation_get_data(workstation);
   attr->on_off = 1;
   attr->start_time = SD_get_clock();
+  attr->total_cost += attr->price;
   SD_workstation_set_data(workstation, attr);
 }
 
 void SD_workstation_terminate(SD_workstation_t workstation){
   WorkstationAttribute attr =
     (WorkstationAttribute) SD_workstation_get_data(workstation);
+  double duration = SD_get_clock() - attr->start_time;
+
+  /* Do some accounting. The time (in seconds) spent since the last time
+   * workstation/VM was started (state set to ON) is rounded down (as the first
+   * hour is charged on activation) and multiplied by the hour price.
+   */
+  attr->total_cost += ((((int) duration / 3600)) * attr->price);
   attr->on_off = 0;
   attr->start_time = 0.0;
   SD_workstation_set_data(workstation, attr);
@@ -99,20 +115,6 @@ int nameCompareWorkstations(const void *n1, const void *n2) {
 /**************    Functions needed by scheduling algorithms    **************/
 /*****************************************************************************/
 /*****************************************************************************/
-
-/* Do some accounting. The time (in seconds) spent since the last time
- * workstation/VM was activated (state set to ON) is rounded up and multiplied
- * by the hour price.
- */
-void SD_workstation_bill(SD_workstation_t workstation, double now,
-                         double price){
-  WorkstationAttribute attr = SD_workstation_get_data(workstation);
-  double duration;
-
-  duration = now - attr->start_time;
-  attr->total_cost += ((((int) duration / 3600)+1) * price);
-  SD_workstation_set_data(workstation, attr);
-}
 
 /* Simple function to know whether a workstation/VM can accept tasks for
  * execution. Has to be ON and idle for that.
