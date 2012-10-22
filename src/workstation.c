@@ -23,6 +23,9 @@ void SD_workstation_allocate_attribute(SD_workstation_t workstation){
   WorkstationAttribute data;
   data = calloc(1,sizeof(struct _WorkstationAttribute));
   data->total_cost = 0;
+  /* Set the workstations to off and idle at the beginning */
+  data->on_off = 0;
+  data->idle_busy = 0;
   SD_workstation_set_data(workstation, data);
 }
 
@@ -72,6 +75,8 @@ void SD_workstation_start(SD_workstation_t workstation){
   attr->on_off = 1;
   attr->start_time = SD_get_clock();
   attr->total_cost += attr->price;
+  XBT_INFO("Total cost for %s is now $%f", SD_workstation_get_name(workstation),
+      attr->total_cost);
   SD_workstation_set_data(workstation, attr);
 }
 
@@ -85,6 +90,8 @@ void SD_workstation_terminate(SD_workstation_t workstation){
    * hour is charged on activation) and multiplied by the hour price.
    */
   attr->total_cost += ((((int) duration / 3600)) * attr->price);
+  XBT_INFO("Total cost for %s is now $%f", SD_workstation_get_name(workstation),
+      attr->total_cost);
   attr->on_off = 0;
   attr->start_time = 0.0;
   SD_workstation_set_data(workstation, attr);

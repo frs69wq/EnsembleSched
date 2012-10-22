@@ -91,9 +91,6 @@ int main(int argc, char **argv) {
 
       for(cursor=0; cursor<total_nworkstations; cursor++){
         SD_workstation_allocate_attribute(workstations[cursor]);
-        /* Set the workstations to off and idle at the beginning */
-        SD_workstation_terminate(workstations[cursor]);
-        SD_workstation_set_to_idle(workstations[cursor]);
       }
       break;
     case 'c':
@@ -171,7 +168,7 @@ int main(int argc, char **argv) {
 
   switch(globals->alg){
   case DPDS:
-    dpds_init(daxes, globals);
+    dpds(daxes, globals);
     break;
   default:
     XBT_ERROR("Algorithm not implemented yet.");
