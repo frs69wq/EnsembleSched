@@ -37,6 +37,8 @@ struct _scheduling_globals {
   double ul;          /* lower utilization threshold */
   double vmax;
 
+  /* time before a started VM actually becomes available */
+  double provisioning_delay;
   int nVM;            /* Number of VMs that have been initially started */
 };
 

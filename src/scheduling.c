@@ -26,6 +26,7 @@ scheduling_globals_t new_scheduling_globals(){
   globals->uh = 80;
   globals->ul = 40;
   globals->vmax = 1.0;
+  globals->provisioning_delay = 0.;
 
   return globals;
 }

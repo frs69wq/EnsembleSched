@@ -22,8 +22,10 @@ The command line accepts many parameters:
                     (default value: 1) 
 * --period <double>: time in seconds between two dynamic provisioning
                      of resources (default value: 3600.)
-* --uh: upper utilization threshold in percents (default value 80)
-* --ul: lower utilization threshold in percents (default value 40)
+* --uh: upper utilization threshold in percents (default value: 80)
+* --ul: lower utilization threshold in percents (default value: 40)
+* --provisioning_delay: time in seconds before a started VM actually becomes 
+                        available (default value: 0.)
 
 Typical command line:
 ./EnsembleSched --alg DPDS --platform cluster.xml \

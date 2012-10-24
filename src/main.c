@@ -54,6 +54,7 @@ int main(int argc, char **argv) {
         {"period", 1, 0, 'h'},
         {"uh", 1, 0, 'i'},
         {"ul", 1, 0, 'j'},
+        {"provisioning_delay", 1, 0, 'k'},
         {0, 0, 0, 0}
     };
 
@@ -136,6 +137,9 @@ int main(int argc, char **argv) {
       break;
     case 'j':
       globals->ul = atof(optarg);
+      break;
+    case 'k':
+      globals->provisioning_delay = atof(optarg);
       break;
     }
   }
