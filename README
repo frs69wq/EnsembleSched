@@ -51,7 +51,10 @@ Corresponding output:
 [ 1450.236] [EnsembleSched/   INFO] Score: 1.500000
 
 To obtain more verbose outputs add to the command line:
---log=dpds.thresh:verbose 
---log=dpds.thresh:debug
---log=task.thresh:debug
+* Full logging
+  --log=EnsembleSched.thresh:verbose or --log=EnsembleSched.thresh:debug
+* Logging for an algorithm 
+   --log=dpds.thresh:verbose or --log=dpds.thresh:debug
+* Logging for functions related to a specific element (task, workstations, ...)
+   --log=task.thresh:debug
 
