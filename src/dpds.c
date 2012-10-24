@@ -225,8 +225,23 @@ void dpds_schedule(xbt_dynar_t daxes, scheduling_globals_t globals){
         handle_resource_dependency(v, t);
       }
     }
+    xbt_dynar_free_container(&changed); /* avoid memory leaks */
   } while ((globals->deadline - SD_get_clock() > 0.00001) &&
            (completed_daxes < xbt_dynar_length(daxes)));
+
+  /* We may have reached the deadline while some tasks are still running. Let's
+   * call SD_simulate one last time to let them finish.
+   */
+  if (globals->deadline - SD_get_clock() < 0.00001){
+    changed = SD_simulate(-1);
+    xbt_dynar_foreach(changed, i, t){
+      if (SD_task_get_kind(t) == SD_TASK_COMP_SEQ &&
+          SD_task_get_state(t) == SD_DONE){
+        XBT_VERB("%s (from %s) has completed after the deadline",
+            SD_task_get_name(t), SD_task_get_dax_name(t));
+      }
+    }
+  }
 
   XBT_INFO("Simulation is over after %.3f seconds.", SD_get_clock());
   XBT_INFO("%d/%lu DAXes have completed.", completed_daxes,
