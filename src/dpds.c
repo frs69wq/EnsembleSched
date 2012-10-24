@@ -233,6 +233,7 @@ void dpds_schedule(xbt_dynar_t daxes, scheduling_globals_t globals){
    * call SD_simulate one last time to let them finish.
    */
   if (globals->deadline - SD_get_clock() < 0.00001){
+    XBT_INFO("Deadline was reached!");
     changed = SD_simulate(-1);
     xbt_dynar_foreach(changed, i, t){
       if (SD_task_get_kind(t) == SD_TASK_COMP_SEQ &&
@@ -259,7 +260,7 @@ void dpds(xbt_dynar_t daxes, scheduling_globals_t globals){
    */
   globals->nVM =
       ceil(globals->budget/((globals->deadline/3600.)*globals->price));
-  XBT_INFO("%d VMs are initially started", globals->nVM);
+  XBT_VERB("%d VMs are initially started", globals->nVM);
   for (i = 0; i < globals->nVM; i++){
     SD_workstation_start(workstations[i]);
   }

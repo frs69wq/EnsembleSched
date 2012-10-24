@@ -36,19 +36,21 @@ Typical command line:
 
 Corresponding output:
 [    0.000] [EnsembleSched/   INFO] Algorithm: DPDS
+[    0.000] [EnsembleSched/   INFO] Priority method: RANDOM
 [    0.000] [EnsembleSched/   INFO] Budget: $100
 [    0.000] [EnsembleSched/   INFO] Deadline: 10000s
 [    0.000] [EnsembleSched/   INFO] DAX 0: daxfiles/Montage_50.xml
 [    0.000] [EnsembleSched/   INFO]   Priority: 1
 [    0.000] [EnsembleSched/   INFO] DAX 1: daxfiles/CyberShake_30.xml
 [    0.000] [EnsembleSched/   INFO]   Priority: 0
-[    0.000] [         dpds/   INFO] 36 VMs are initially started
 [   61.396] [         dpds/   INFO] daxfiles/Montage_50.xml: Complete!
 [ 1450.236] [         dpds/   INFO] daxfiles/CyberShake_30.xml: Complete!
-[ 1450.236] [         dpds/   INFO] Simulation is over after 1450.236 seconds.
-[ 1450.236] [         dpds/   INFO] 2/2 DAXes have completed.
-[ 1450.236] [EnsembleSched/   INFO] This schedule has been done for $36.00
+[ 1450.236] [EnsembleSched/   INFO] Makespan: 1450.236 seconds.
+[ 1450.236] [EnsembleSched/   INFO] Success rate: 2/2
+[ 1450.236] [EnsembleSched/   INFO] Total cost: $36.00
 [ 1450.236] [EnsembleSched/   INFO] Score: 1.500000
+[ 1450.236] [EnsembleSched/   INFO] Cost/Budget: 0.360000
+[ 1450.236] [EnsembleSched/   INFO] Makespan/Deadline: 0.145024
 
 To obtain more verbose outputs add to the command line:
 * Full logging

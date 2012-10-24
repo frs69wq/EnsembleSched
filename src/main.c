@@ -153,7 +153,8 @@ int main(int argc, char **argv) {
   }
   /* Display some information about the current run */
   XBT_INFO("Algorithm: %s",getAlgorithmName(globals->alg));
-
+  XBT_INFO("Priority method: %s",
+      globals->priority_method ? "SORTED" : "RANDOM");
   /* Sanity checks about crucial parameters */
   if (globals->budget && globals->deadline){
     XBT_INFO("Budget: $%.0f", globals->budget);
