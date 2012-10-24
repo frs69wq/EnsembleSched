@@ -112,6 +112,12 @@ int nameCompareWorkstations(const void *n1, const void *n2) {
  * - setting attributes to 'ON' and 'idle'
  * - Resetting the start time of the workstation to the current time
  * - bill at least the first hour
+ * If a provisioning delay is needed before a VM is actually available for
+ * executing task, this function :
+ * - creates a task whose name is "Booting " followed by the workstation name
+ * - schedules this task on the workstation
+ * - Ensures that no compute task can be executed before the completion of this
+ *   booting task.
  */
 void SD_workstation_start(SD_workstation_t workstation){
   WorkstationAttribute attr =
@@ -144,6 +150,9 @@ void SD_workstation_start(SD_workstation_t workstation){
  * - Do some accounting. The time (in seconds) spent since the last time
  *   workstation/VM was started (state set to ON) is rounded down (as the first
  *   hour is charged on activation) and multiplied by the hour price.
+ * If a provisioning delay is needed before a VM is actually available for
+ * executing task, this function destroys the booting task created by the
+ * SD_workstation_start function.
 */
 void SD_workstation_terminate(SD_workstation_t workstation){
   WorkstationAttribute attr =
@@ -177,7 +186,7 @@ xbt_dynar_t get_idle_VMs(){
   int nworkstations = SD_workstation_get_number ();
   xbt_dynar_t idleVMs = xbt_dynar_new(sizeof(SD_workstation_t), NULL);
 
-  for (i=0; i<nworkstations; i++){
+  for (i = 0; i < nworkstations; i++){
     if (is_on_and_idle(workstations[i]))
       xbt_dynar_push(idleVMs, &(workstations[i]));
   }
@@ -193,7 +202,7 @@ xbt_dynar_t get_running_VMs(){
   WorkstationAttribute attr;
   xbt_dynar_t runningVMs = xbt_dynar_new(sizeof(SD_workstation_t), NULL);
 
-  for (i=0; i<nworkstations; i++){
+  for (i = 0; i < nworkstations; i++){
     attr = SD_workstation_get_data(workstations[i]);
     if (attr->on_off)
       xbt_dynar_push(runningVMs, &(workstations[i]));
@@ -215,7 +224,7 @@ xbt_dynar_t get_ending_billing_cycle_VMs(){
   WorkstationAttribute attr;
   xbt_dynar_t endingVMs = xbt_dynar_new(sizeof(SD_workstation_t), NULL);
 
-  for (i=0; i<nworkstations; i++){
+  for (i = 0; i < nworkstations; i++){
     attr = SD_workstation_get_data(workstations[i]);
     /* To determine how far a VM is from the end of a hourly billing cycle, we
      * compute the time spent between the start of the VM and the current, and
@@ -296,7 +305,7 @@ SD_workstation_t find_inactive_VM_to_start(){
   WorkstationAttribute attr;
   SD_workstation_t v = NULL;
 
-  while (i<nworkstations){
+  while (i < nworkstations){
     attr = SD_workstation_get_data(workstations[i]);
     if (!attr->on_off){
       v = workstations[i];
@@ -326,9 +335,9 @@ double compute_current_VM_utilization(){
   const SD_workstation_t *workstations = SD_workstation_get_list ();
   int nworkstations = SD_workstation_get_number ();
   WorkstationAttribute attr;
-  int nActiveVMs=0, nIdleVms=0;
+  int nActiveVMs = 0, nIdleVms = 0;
 
-  for (i=0; i<nworkstations; i++){
+  for (i = 0; i < nworkstations; i++){
     attr = SD_workstation_get_data(workstations[i]);
     if (attr->on_off){
       nActiveVMs++;
