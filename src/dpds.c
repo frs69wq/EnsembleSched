@@ -243,10 +243,6 @@ void dpds_schedule(xbt_dynar_t daxes, scheduling_globals_t globals){
     }
   }
 
-  XBT_INFO("Simulation is over after %.3f seconds.", SD_get_clock());
-  XBT_INFO("%d/%lu DAXes have completed.", completed_daxes,
-      xbt_dynar_length(daxes));
-
   /* Cleaning step once simulation is over */
   xbt_dynar_free_container(&idleVMs);
   xbt_dynar_free_container(&priority_queue);

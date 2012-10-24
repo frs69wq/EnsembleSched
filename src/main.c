@@ -26,10 +26,11 @@ int main(int argc, char **argv) {
   int total_nworkstations = 0;
   const SD_workstation_t *workstations = NULL;
   xbt_dynar_t daxes = NULL, current_dax = NULL;
+  int completed_daxes = 0;
   SD_task_t task;
   scheduling_globals_t globals;
   WorkstationAttribute attr;
-  double total_cost = 0.0;
+  double total_cost = 0.0, score = 0.0;
 
   SD_init(&argc, argv);
 
@@ -189,6 +190,14 @@ int main(int argc, char **argv) {
   }
 
   /* Post-processing of simulation */
+  /* Determine how many DAXes are complete */
+  xbt_dynar_foreach(daxes, cursor, current_dax){
+    task = get_end(current_dax);
+    if (SD_task_get_state(task) == SD_DONE){
+      completed_daxes++;
+    }
+  }
+
   /* Terminate all VMs and do the final billing*/
   for (cursor = 0; cursor < total_nworkstations; cursor++){
     attr = SD_workstation_get_data(workstations[cursor]);
@@ -196,9 +205,17 @@ int main(int argc, char **argv) {
       SD_workstation_terminate(workstations[cursor]);
     total_cost += attr->total_cost;
   }
-  XBT_INFO("This schedule has been done for $%.2f", total_cost);
-  XBT_INFO("Score: %f", compute_score(daxes));
 
+  /* Compute the score of the schedule */
+  score = compute_score(daxes);
+
+  /* Display main information about the schedule */
+  XBT_INFO("Makespan: %.3f seconds.", SD_get_clock());
+  XBT_INFO("Success rate: %d/%lu", completed_daxes, xbt_dynar_length(daxes));
+  XBT_INFO("Total cost: $%.2f", total_cost);
+  XBT_INFO("Score: %f", score);
+  XBT_INFO("Cost/Budget: %f", total_cost / globals->budget);
+  XBT_INFO("Makespan/Deadline: %f", SD_get_clock() / globals->deadline);
 
   /* Cleaning step: Free all the allocated data structures */
   xbt_dynar_foreach(daxes, cursor, current_dax){
