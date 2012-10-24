@@ -110,7 +110,7 @@ double compute_score(xbt_dynar_t daxes){
     task = get_end(current_dax);
     if (SD_task_get_state(task) == SD_DONE){
       current_score = pow(2.0, -SD_task_get_dax_priority(task));
-      XBT_INFO("%s has completed its execution."
+      XBT_DEBUG("%s has completed its execution."
           " It contributes to the score by %f",
           SD_task_get_dax_name(task), current_score);
       total_score += current_score;
