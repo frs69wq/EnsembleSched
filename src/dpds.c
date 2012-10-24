@@ -157,6 +157,9 @@ void dpds_schedule(xbt_dynar_t daxes, scheduling_globals_t globals){
         /* Call dpds_provision*/
         XBT_DEBUG("Dynamic Provisioning at time %f", SD_get_clock());
         dpds_provision(consumed_budget,SD_get_clock(), globals);
+        /* It may have change the set of idle VMs, recompute it */
+        xbt_dynar_free_container(&idleVMs); /*avoid memory leaks */
+        idleVMs = get_idle_VMs();
         continue;
       }
       if (globals->deadline <= SD_get_clock()){
@@ -268,7 +271,7 @@ void dpds(xbt_dynar_t daxes, scheduling_globals_t globals){
    * Conversion is needed.
    */
   globals->nVM =
-      ceil(globals->budget/((globals->deadline/3600.)*globals->price));
+      ceil(globals->budget/(MAX(1,(globals->deadline/3600.))*globals->price));
   XBT_VERB("%d VMs are initially started", globals->nVM);
   for (i = 0; i < globals->nVM; i++){
     SD_workstation_start(workstations[i]);
