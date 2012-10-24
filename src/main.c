@@ -28,6 +28,8 @@ int main(int argc, char **argv) {
   xbt_dynar_t daxes = NULL, current_dax = NULL;
   SD_task_t task;
   scheduling_globals_t globals;
+  WorkstationAttribute attr;
+  double total_cost = 0.0;
 
   SD_init(&argc, argv);
 
@@ -41,7 +43,6 @@ int main(int argc, char **argv) {
   daxes = xbt_dynar_new(sizeof(xbt_dynar_t), NULL);
   opterr = 0;
 
-  //TODO add command line arguments: utilization thresholds
   while (1){
     static struct option long_options[] = {
         {"alg", 1, 0, 'a'},
@@ -179,9 +180,21 @@ int main(int argc, char **argv) {
     break;
   }
 
+  /* Post-processing of simulation */
+  /* Terminate all VMs and do the final billing*/
+  for (cursor = 0; cursor < total_nworkstations; cursor++){
+    attr = SD_workstation_get_data(workstations[cursor]);
+    if (attr->on_off)
+      SD_workstation_terminate(workstations[cursor]);
+    total_cost += attr->total_cost;
+  }
+  XBT_INFO("This schedule has been done for $%f", total_cost);
+  XBT_INFO("Score: %f", compute_score(daxes));
+
+
   /* Cleaning step: Free all the allocated data structures */
   xbt_dynar_foreach(daxes, cursor, current_dax){
-    xbt_dynar_foreach(current_dax,cursor2,task) {
+    xbt_dynar_foreach(current_dax, cursor2, task) {
       SD_task_free_attribute(task);
       free(SD_task_get_data(task));
       SD_task_destroy(task);
@@ -191,7 +204,7 @@ int main(int argc, char **argv) {
   xbt_dynar_free(&daxes);
   free(globals);
 
-  for(cursor=0; cursor<total_nworkstations; cursor++)
+  for(cursor = 0; cursor < total_nworkstations; cursor++)
     SD_workstation_free_attribute(workstations[cursor]);
 
   SD_exit();

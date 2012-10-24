@@ -241,9 +241,6 @@ void dpds_schedule(xbt_dynar_t daxes, scheduling_globals_t globals){
 void dpds(xbt_dynar_t daxes, scheduling_globals_t globals){
   int i;
   const SD_workstation_t *workstations = SD_workstation_get_list();
-  int nworkstations = SD_workstation_get_number ();
-  WorkstationAttribute attr;
-  double total_cost = 0.0;
 
   /* Start by activating nVM VMs
    * Deadline is expressed in seconds, while price is for an hour.
@@ -256,14 +253,4 @@ void dpds(xbt_dynar_t daxes, scheduling_globals_t globals){
     SD_workstation_start(workstations[i]);
   }
   dpds_schedule(daxes, globals);
-
-  /* Terminate all VMs and do the final billing*/
-  for (i = 0; i < nworkstations; i++){
-    attr = SD_workstation_get_data(workstations[i]);
-    if (attr->on_off)
-      SD_workstation_terminate(workstations[i]);
-    total_cost += attr->total_cost;
-  }
-  XBT_INFO("This schedule has been done for $%f", total_cost);
-  XBT_INFO("Score: %f", compute_score(daxes));
 }
