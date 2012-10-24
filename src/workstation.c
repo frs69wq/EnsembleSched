@@ -181,7 +181,8 @@ int is_on_and_idle(SD_workstation_t workstation){
 
 /* Build an array that contains all the idle workstations/VMs in the platform */
 xbt_dynar_t get_idle_VMs(){
-  int i;
+  unsigned int i;
+  SD_workstation_t v;
   const SD_workstation_t *workstations = SD_workstation_get_list ();
   int nworkstations = SD_workstation_get_number ();
   xbt_dynar_t idleVMs = xbt_dynar_new(sizeof(SD_workstation_t), NULL);
@@ -190,6 +191,9 @@ xbt_dynar_t get_idle_VMs(){
     if (is_on_and_idle(workstations[i]))
       xbt_dynar_push(idleVMs, &(workstations[i]));
   }
+
+  xbt_dynar_foreach(idleVMs, i, v)
+    XBT_INFO("%s is idle", SD_workstation_get_name(v));
 
   return idleVMs;
 }
@@ -326,26 +330,25 @@ SD_workstation_t find_inactive_VM_to_start(){
 /* Determine the current utilization of VM in the system. This utilization is
  * defined in the paper by Malawski et al. as "the percentage of idle VMs over
  * time".
- * Assumption: we translate that as counting the number of active (ON) VMs,
- * counting the number of idle VMs (ON and idle), and then computing the
- * percentage of idle VMs (100*#idle/#active).
+ * The source code shows that it is the number of busy VMs divided by the total
+ * number of active VMs (busy and idle)
  */
 double compute_current_VM_utilization(){
   int i=0;
   const SD_workstation_t *workstations = SD_workstation_get_list ();
   int nworkstations = SD_workstation_get_number ();
   WorkstationAttribute attr;
-  int nActiveVMs = 0, nIdleVms = 0;
+  int nActiveVMs = 0, nBusyVMs = 0;
 
   for (i = 0; i < nworkstations; i++){
     attr = SD_workstation_get_data(workstations[i]);
     if (attr->on_off){
       nActiveVMs++;
       if (!attr->idle_busy)
-        nIdleVms++;
+        nBusyVMs++;
     }
   }
-  return (100.*nIdleVms)/nActiveVMs;
+  return (100.*nBusyVMs)/nActiveVMs;
 }
 
 
