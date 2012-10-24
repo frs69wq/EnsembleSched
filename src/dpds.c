@@ -1,7 +1,7 @@
 /*
  * dpds.c
  * SimDAG implementation of the Dynamic Provisioning, Dynamic Scheduling
- * algorihtm from
+ * Algorithm from
  * Cost- and Deadline-Constrained Provisioning for Scientific Workflow
  * Ensembles in IaaS Clouds by Maciej Malawski, Gideon Juve, Ewa Deelman and
  * Jarek Nabrzyski published at SC'12.
@@ -200,7 +200,8 @@ void dpds_schedule(xbt_dynar_t daxes, scheduling_globals_t globals){
 
       /* Sort again the priority queue as new tasks have been added. */
       xbt_dynar_sort(priority_queue, daxPriorityCompareTasks);
-      /* Display the current contents of the priority queue as debug information*/
+      /* Display the current contents of the priority queue as debug
+       * information*/
       xbt_dynar_foreach(priority_queue,j,child)
       XBT_DEBUG("%s is in priority queue", SD_task_get_name(child));
 
@@ -224,7 +225,7 @@ void dpds_schedule(xbt_dynar_t daxes, scheduling_globals_t globals){
         handle_resource_dependency(v, t);
       }
     }
-  } while ((SD_get_clock()< globals->deadline) &&
+  } while ((globals->deadline - SD_get_clock() > 0.00001) &&
            (completed_daxes < xbt_dynar_length(daxes)));
 
   XBT_INFO("Simulation is over after %f seconds."
@@ -248,7 +249,8 @@ void dpds(xbt_dynar_t daxes, scheduling_globals_t globals){
    * Deadline is expressed in seconds, while price is for an hour.
    * Conversion is needed.
    */
-  globals->nVM = ceil(globals->budget/((globals->deadline/3600.)*globals->price));
+  globals->nVM =
+      ceil(globals->budget/((globals->deadline/3600.)*globals->price));
   XBT_INFO("%d VMs are initially started", globals->nVM);
   for (i = 0; i < globals->nVM; i++){
     SD_workstation_start(workstations[i]);
@@ -263,4 +265,5 @@ void dpds(xbt_dynar_t daxes, scheduling_globals_t globals){
     total_cost += attr->total_cost;
   }
   XBT_INFO("This schedule has been done for $%f", total_cost);
+  XBT_INFO("Score: %f", compute_score(daxes));
 }
