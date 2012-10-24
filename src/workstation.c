@@ -192,9 +192,6 @@ xbt_dynar_t get_idle_VMs(){
       xbt_dynar_push(idleVMs, &(workstations[i]));
   }
 
-  xbt_dynar_foreach(idleVMs, i, v)
-    XBT_INFO("%s is idle", SD_workstation_get_name(v));
-
   return idleVMs;
 }
 
