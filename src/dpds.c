@@ -220,9 +220,6 @@ void dpds_schedule(xbt_dynar_t daxes, scheduling_globals_t globals){
 
         /* Remove a random VM from the list of idleVMs and set it as busy */
         v = select_random(idleVMs);
-//        if (xbt_dynar_member(idleVMs,&v)){
-//          XBT_WARN("WTF!!! %s should be out !!!", SD_workstation_get_name(v));
-//        }
         SD_workstation_set_to_busy(v);
 
         /* Pop the last task from the queue, i.e. one belonging to the DAX of
