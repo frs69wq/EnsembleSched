@@ -34,6 +34,7 @@ int main(int argc, char **argv) {
   /* get rid off some logs that are useless */
   xbt_log_control_set("sd_daxparse.thresh:critical");
   xbt_log_control_set("surf_workstation.thresh:critical");
+  xbt_log_control_set("root.fmt:[%12.6r]%e[%13c/%7p]%e%m%n");
 
   globals = new_scheduling_globals();
 
@@ -96,10 +97,10 @@ int main(int argc, char **argv) {
     case 'c':
       /* List of DAGs to schedule concurrently (just file names here) */
       daxname = optarg;
-      XBT_INFO("loading %s", daxname);
+      XBT_INFO("Loading %s", daxname);
       current_dax = SD_daxload(daxname);
       xbt_dynar_foreach(current_dax,cursor,task) {
-        if (SD_task_get_kind(task)==SD_TASK_COMP_SEQ){
+        if (SD_task_get_kind(task) == SD_TASK_COMP_SEQ){
           SD_task_watch(task, SD_DONE);
         }
         SD_task_allocate_attribute(task);
@@ -157,9 +158,8 @@ int main(int argc, char **argv) {
   assign_dax_priorities(daxes, globals->priority_method);
   xbt_dynar_foreach(daxes, cursor, current_dax){
      task = get_root(current_dax);
-     XBT_INFO("%30s is assigned a priority of %d",
-         SD_task_get_dax_name(task),
-         SD_task_get_dax_priority(task));
+     XBT_INFO("Priority %d assigned to %s",
+         SD_task_get_dax_priority(task), SD_task_get_dax_name(task));
   }
 
   /* Assign price to workstation/VM (for sake of simplicity) */

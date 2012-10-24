@@ -155,7 +155,7 @@ void dpds_schedule(xbt_dynar_t daxes, scheduling_globals_t globals){
         XBT_VERB("$%f have already been spent", consumed_budget);
 
         /* Call dpds_provision*/
-        XBT_INFO("Dynamic Provisioning at time %f", SD_get_clock());
+        XBT_DEBUG("Dynamic Provisioning at time %f", SD_get_clock());
         dpds_provision(consumed_budget,SD_get_clock(), globals);
         continue;
       }
@@ -182,7 +182,7 @@ void dpds_schedule(xbt_dynar_t daxes, scheduling_globals_t globals){
 
           /* Detection of the completion of a workflow */
           if (!strcmp(SD_task_get_name(t), "end")){
-            XBT_DEBUG("DAX %s has completed", SD_task_get_dax_name(t));
+            XBT_INFO("DAX %s has completed", SD_task_get_dax_name(t));
             completed_daxes++;
           }
           /* add ready children of t to the priority queue */
@@ -227,8 +227,8 @@ void dpds_schedule(xbt_dynar_t daxes, scheduling_globals_t globals){
   } while ((SD_get_clock()< globals->deadline) &&
            (completed_daxes < xbt_dynar_length(daxes)));
 
-  XBT_INFO("Simulation is complete after %f seconds."
-      " %d DAXes have completed among %lu.", SD_get_clock(), completed_daxes,
+  XBT_INFO("Simulation is over after %f seconds."
+      " %d/%lu DAXes have completed.", SD_get_clock(), completed_daxes,
       xbt_dynar_length(daxes));
 
   /* Cleaning step once simulation is over */
@@ -249,7 +249,7 @@ void dpds(xbt_dynar_t daxes, scheduling_globals_t globals){
    * Conversion is needed.
    */
   globals->nVM = ceil(globals->budget/((globals->deadline/3600.)*globals->price));
-  XBT_INFO("%d VMs are started to begin with", globals->nVM);
+  XBT_INFO("%d VMs are initially started", globals->nVM);
   for (i = 0; i < globals->nVM; i++){
     SD_workstation_start(workstations[i]);
   }

@@ -31,13 +31,17 @@ Typical command line:
 --budget 100 --deadline 10000
 
 Corresponding output:
-[0.000000] [EnsembleSched/INFO] Algorithm: DPDS
-[0.000000] [EnsembleSched/INFO] loading daxfiles/Montage_50.xml
-[0.000000] [EnsembleSched/INFO] loading daxfiles/CyberShake_30.xml
-[0.000000] [EnsembleSched/INFO] The constraints are a budget of $100 and a deadline of 10000s
-[0.000000] [EnsembleSched/INFO]        daxfiles/Montage_50.xml is assigned a priority of 1
-[0.000000] [EnsembleSched/INFO]     daxfiles/CyberShake_30.xml is assigned a priority of 0
-[0.000000] [dpds/INFO] 36 VMs are started to begin with
+[    0.000000] [EnsembleSched/   INFO] Algorithm: DPDS
+[    0.000000] [EnsembleSched/   INFO] Loading daxfiles/Montage_50.xml
+[    0.000000] [EnsembleSched/   INFO] Loading daxfiles/CyberShake_30.xml
+[    0.000000] [EnsembleSched/   INFO] The constraints are a budget of $100 and a deadline of 10000s
+[    0.000000] [EnsembleSched/   INFO] Priority 0 assigned to daxfiles/Montage_50.xml
+[    0.000000] [EnsembleSched/   INFO] Priority 1 assigned to daxfiles/CyberShake_30.xml
+[    0.000000] [         dpds/   INFO] 36 VMs are initially started
+[   61.395670] [         dpds/   INFO] DAX daxfiles/Montage_50.xml has completed
+[ 1450.236063] [         dpds/   INFO] DAX daxfiles/CyberShake_30.xml has completed
+[ 1450.236063] [         dpds/   INFO] Simulation is over after 1450.236063 seconds. 2/2 DAXes have completed.
+[ 1450.236063] [         dpds/   INFO] This schedule has been done for $36.000000
 
 To obtain more verbose outputs add to the command line:
 --log=dpds.thresh:verbose 
