@@ -12,9 +12,9 @@ The command line accepts many parameters:
 * --priority <random|sorted>: method to assign priority to workflows
                               (default value: random)
 * --period <double>: time in seconds between two dynamic provisioning
-                     of resources (default value: 3600.)
-* --uh <double>: upper utilization threshold in percents (default value: 80)
-* --ul <double>: lower utilization threshold in percents (default value: 40)
+                     of resources (default value: 90.)
+* --uh <double>: upper utilization threshold in percents (default value: 90)
+* --ul <double>: lower utilization threshold in percents (default value: 70)
 * --platform <platform file>: the description of the cloud in the
                               simgrid format
 * --price <double>: hourly cost of a single VM in $/h 
@@ -38,8 +38,8 @@ Corresponding output:
 [    0.000] [EnsembleSched/   INFO] Algorithm: DPDS
 [    0.000] [EnsembleSched/   INFO]   Priority method: RANDOM
 [    0.000] [EnsembleSched/   INFO]   Dynamic provisioning period: 3600s
-[    0.000] [EnsembleSched/   INFO]   Lower utilization threshold: 40.00%
-[    0.000] [EnsembleSched/   INFO]   Upper utilization threshold: 80.00%
+[    0.000] [EnsembleSched/   INFO]   Lower utilization threshold: 70.00%
+[    0.000] [EnsembleSched/   INFO]   Upper utilization threshold: 90.00%
 [    0.000] [EnsembleSched/   INFO] Platform: cluster.xml (1000 potential VMs)
 [    0.000] [EnsembleSched/   INFO]   VM hourly cost: $1.000000
 [    0.000] [EnsembleSched/   INFO]   VM provisioning delay: 0s

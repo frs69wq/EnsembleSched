@@ -214,9 +214,10 @@ xbt_dynar_t get_running_VMs(){
 /* Build an array that contains all the workstations/VMs that are "approaching
  * their hourly billing cycle" in the platform
  * Remark: In the paper by Malawski et al., no details are provided about when
- * a VM is "approaching" the end of a paid hour.
- * Assumption: Consider that VMs are ending a billing cycle when they consumed
- * more than 50 minutes of the current hour. */
+ * a VM is "approaching" the end of a paid hour. This is hard coded in the
+ * source code of cloudworkflowsim: 90s (provisioner interval) +
+ * 1s (optimistic deprovisioning delay)
+ */
 xbt_dynar_t get_ending_billing_cycle_VMs(){
   int i;
   const SD_workstation_t *workstations = SD_workstation_get_list ();
@@ -230,11 +231,10 @@ xbt_dynar_t get_ending_billing_cycle_VMs(){
      * compute the time spent between the start of the VM and the current, and
      * keep the time spent in the last hour. As times are expressed in seconds,
      * it amounts to computing the modulo to 3600s=1h.
-     * Then the current VM is selected if this modulo is greater than
-     * 3000s=50mn.
+     * Then the current VM is selected if this modulo is greater than 3509s
      */
     if (attr->on_off &&
-        ((int)(SD_get_clock() - attr->start_time) % 3600) > 3000)
+        ((int)(SD_get_clock() - attr->start_time) % 3600) > 3509)
       xbt_dynar_push(endingVMs, &(workstations[i]));
   }
 

@@ -19,12 +19,13 @@ scheduling_globals_t new_scheduling_globals(){
 
   /* set some default values */
   globals->priority_method = RANDOM;
-  globals->period = 3600.0;
+  globals->period = 90.0; /* value found in the source code of
+                             cloudworkflowsim */
   globals->price = 1.0;
   globals->budget = 0.;
   globals->deadline = 0.;
-  globals->uh = 80;
-  globals->ul = 40;
+  globals->uh = 90; /* value found in the source code of cloudworkflowsim */
+  globals->ul = 70; /* value found in the source code of cloudworkflowsim */
   globals->vmax = 1.0;
   globals->provisioning_delay = 0.;
 
