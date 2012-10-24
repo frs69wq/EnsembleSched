@@ -177,9 +177,13 @@ int main(int argc, char **argv) {
      XBT_INFO("  Priority: %d", SD_task_get_dax_priority(task));
   }
 
-  /* Assign price to workstation/VM (for sake of simplicity) */
-  for(cursor=0; cursor<total_nworkstations; cursor++)
+  /* Assign price and provisioning delay to workstation/VM (for the sake of
+   * simplicity) */
+  for(cursor=0; cursor<total_nworkstations; cursor++){
     SD_workstation_set_price(workstations[cursor], globals->price);
+    SD_workstation_set_provisioning_delay(workstations[cursor],
+        globals->provisioning_delay);
+  }
 
   switch(globals->alg){
   case DPDS:

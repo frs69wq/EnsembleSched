@@ -41,6 +41,14 @@ void SD_workstation_set_price(SD_workstation_t workstation, double price){
   SD_workstation_set_data(workstation, attr);
 }
 
+void SD_workstation_set_provisioning_delay(SD_workstation_t workstation,
+    double delay){
+  WorkstationAttribute attr =
+    (WorkstationAttribute) SD_workstation_get_data(workstation);
+  attr->provisioning_delay= delay;
+  SD_workstation_set_data(workstation, attr);
+}
+
 
 double SD_workstation_get_available_at( SD_workstation_t workstation){
   WorkstationAttribute attr =
