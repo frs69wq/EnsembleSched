@@ -36,7 +36,7 @@ int main(int argc, char **argv) {
   /* get rid off some logs that are useless */
   xbt_log_control_set("sd_daxparse.thresh:critical");
   xbt_log_control_set("surf_workstation.thresh:critical");
-  xbt_log_control_set("root.fmt:[%12.6r]%e[%13c/%7p]%e%m%n");
+  xbt_log_control_set("root.fmt:[%9.3r]%e[%13c/%7p]%e%m%n");
 
   globals = new_scheduling_globals();
 
@@ -56,11 +56,13 @@ int main(int argc, char **argv) {
         {"uh", 1, 0, 'i'},
         {"ul", 1, 0, 'j'},
         {"provisioning_delay", 1, 0, 'k'},
+        {"silent", 0, 0, 'y'},
+        {"dump", 1, 0, 'z'},
         {0, 0, 0, 0}
     };
 
     int option_index = 0;
-    flag = getopt_long (argc, argv, "abc:",
+    flag = getopt_long (argc, argv, "",
                         long_options, &option_index);
 
     /* Detect the end of the options. */
@@ -80,7 +82,6 @@ int main(int argc, char **argv) {
     case 'a': /* Algorithm name */
       /* DPDS, WA-DPDS, SPSS, Ours*/
       globals->alg = getAlgorithmByName(optarg);
-      XBT_INFO("Algorithm: %s",getAlgorithmName(globals->alg));
       break;
     case 'b':
       platform_file = optarg;
@@ -99,7 +100,7 @@ int main(int argc, char **argv) {
     case 'c':
       /* List of DAGs to schedule concurrently (just file names here) */
       daxname = optarg;
-      XBT_INFO("Loading %s", daxname);
+      XBT_DEBUG("Loading %s", daxname);
       current_dax = SD_daxload(daxname);
       xbt_dynar_foreach(current_dax,cursor,task) {
         if (SD_task_get_kind(task) == SD_TASK_COMP_SEQ){
@@ -142,13 +143,20 @@ int main(int argc, char **argv) {
     case 'k':
       globals->provisioning_delay = atof(optarg);
       break;
+    case 'y':
+      xbt_log_control_set("root.thresh:critical");
+      break;
+    case 'z':
+      break;
     }
   }
+  /* Display some information about the current run */
+  XBT_INFO("Algorithm: %s",getAlgorithmName(globals->alg));
 
   /* Sanity checks about crucial parameters */
   if (globals->budget && globals->deadline){
-    XBT_INFO("The constraints are a budget of $%.0f and a deadline of %.0fs",
-        globals->budget, globals->deadline);
+    XBT_INFO("Budget: $%.0f", globals->budget);
+    XBT_INFO("Deadline: %.0fs", globals->deadline);
   }
   if (ceil(globals->budget/((globals->deadline/3600.)*globals->price))>
       SD_workstation_get_number()){
@@ -163,8 +171,8 @@ int main(int argc, char **argv) {
   assign_dax_priorities(daxes, globals->priority_method);
   xbt_dynar_foreach(daxes, cursor, current_dax){
      task = get_root(current_dax);
-     XBT_INFO("Priority %d assigned to %s",
-         SD_task_get_dax_priority(task), SD_task_get_dax_name(task));
+     XBT_INFO("DAX %u: %s", cursor, SD_task_get_dax_name(task));
+     XBT_INFO("  Priority: %d", SD_task_get_dax_priority(task));
   }
 
   /* Assign price to workstation/VM (for sake of simplicity) */
@@ -188,7 +196,7 @@ int main(int argc, char **argv) {
       SD_workstation_terminate(workstations[cursor]);
     total_cost += attr->total_cost;
   }
-  XBT_INFO("This schedule has been done for $%f", total_cost);
+  XBT_INFO("This schedule has been done for $%.2f", total_cost);
   XBT_INFO("Score: %f", compute_score(daxes));
 
 

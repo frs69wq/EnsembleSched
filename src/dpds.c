@@ -182,7 +182,7 @@ void dpds_schedule(xbt_dynar_t daxes, scheduling_globals_t globals){
 
           /* Detection of the completion of a workflow */
           if (!strcmp(SD_task_get_name(t), "end")){
-            XBT_INFO("DAX %s has completed", SD_task_get_dax_name(t));
+            XBT_INFO("%s: Complete!", SD_task_get_dax_name(t));
             completed_daxes++;
           }
           /* add ready children of t to the priority queue */
@@ -228,8 +228,8 @@ void dpds_schedule(xbt_dynar_t daxes, scheduling_globals_t globals){
   } while ((globals->deadline - SD_get_clock() > 0.00001) &&
            (completed_daxes < xbt_dynar_length(daxes)));
 
-  XBT_INFO("Simulation is over after %f seconds."
-      " %d/%lu DAXes have completed.", SD_get_clock(), completed_daxes,
+  XBT_INFO("Simulation is over after %.3f seconds.", SD_get_clock());
+  XBT_INFO("%d/%lu DAXes have completed.", completed_daxes,
       xbt_dynar_length(daxes));
 
   /* Cleaning step once simulation is over */
