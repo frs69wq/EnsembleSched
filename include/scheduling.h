@@ -50,7 +50,7 @@ void handle_resource_dependency(SD_workstation_t, SD_task_t);
 /*****************************************************************************/
 /*************       Scheduling algorithms entry points        ***************/
 /*****************************************************************************/
-void dpds_init(xbt_dynar_t, scheduling_globals_t);
+void dpds(xbt_dynar_t, scheduling_globals_t);
 double compute_budget_consumption();
 
 #endif /* SCHEDULING_H_ */
