@@ -9,23 +9,23 @@ Requires SimGrid (git release):
 
 The command line accepts many parameters:
 * --alg <algorithm name>: the scheduling algorithm (currently only DPDS)
-* --platform <platform file>: the description of the cloud in the
-                              simgrid format
-* --dax <file>: description of a workflow in the Pegasus format (DAX).
-                Multiple --dax flags can be used
 * --priority <random|sorted>: method to assign priority to workflows
                               (default value: random)
-* --budget <double>: budget in $ (or any other currency)
-* --deadline <double>: deadline before which a maximum of workflows
-                       have to complete expressed in seconds
-* --price <double>: hourly cost of a single VM in $/h 
-                    (default value: 1) 
 * --period <double>: time in seconds between two dynamic provisioning
                      of resources (default value: 3600.)
 * --uh <double>: upper utilization threshold in percents (default value: 80)
 * --ul <double>: lower utilization threshold in percents (default value: 40)
+* --platform <platform file>: the description of the cloud in the
+                              simgrid format
+* --price <double>: hourly cost of a single VM in $/h 
+                    (default value: 1) 
 * --provisioning_delay <double>: time in seconds before a started VM actually 
                                  becomes available (default value: 0.)
+* --dax <file>: description of a workflow in the Pegasus format (DAX).
+                Multiple --dax flags can be used
+* --budget <double>: budget in $ (or any other currency)
+* --deadline <double>: deadline before which a maximum of workflows
+                       have to complete expressed in seconds
 * --silent: no information are displayed on the standard output
 * --dump <filename>: produce a file with many information on the simulation run
 
@@ -36,15 +36,25 @@ Typical command line:
 
 Corresponding output:
 [    0.000] [EnsembleSched/   INFO] Algorithm: DPDS
-[    0.000] [EnsembleSched/   INFO] Priority method: RANDOM
-[    0.000] [EnsembleSched/   INFO] Budget: $100
-[    0.000] [EnsembleSched/   INFO] Deadline: 10000s
-[    0.000] [EnsembleSched/   INFO] DAX 0: daxfiles/Montage_50.xml
-[    0.000] [EnsembleSched/   INFO]   Priority: 1
-[    0.000] [EnsembleSched/   INFO] DAX 1: daxfiles/CyberShake_30.xml
-[    0.000] [EnsembleSched/   INFO]   Priority: 0
+[    0.000] [EnsembleSched/   INFO]   Priority method: RANDOM
+[    0.000] [EnsembleSched/   INFO]   Dynamic provisioning period: 3600s
+[    0.000] [EnsembleSched/   INFO]   Lower utilization threshold: 40.00%
+[    0.000] [EnsembleSched/   INFO]   Upper utilization threshold: 80.00%
+[    0.000] [EnsembleSched/   INFO] Platform: cluster.xml (1000 potential VMs)
+[    0.000] [EnsembleSched/   INFO]   VM hourly cost: $1.000000
+[    0.000] [EnsembleSched/   INFO]   VM provisioning delay: 0s
+[    0.000] [EnsembleSched/   INFO] Ensemble: 2 DAXes
+[    0.000] [EnsembleSched/   INFO]   daxfiles/Montage_50.xml
+[    0.000] [EnsembleSched/   INFO]     Priority: 1
+[    0.000] [EnsembleSched/   INFO]   daxfiles/CyberShake_30.xml
+[    0.000] [EnsembleSched/   INFO]     Priority: 0
+[    0.000] [EnsembleSched/   INFO] Scheduling constraints:
+[    0.000] [EnsembleSched/   INFO]   Budget: $100
+[    0.000] [EnsembleSched/   INFO]   Deadline: 10000s
+
 [   61.396] [         dpds/   INFO] daxfiles/Montage_50.xml: Complete!
 [ 1450.236] [         dpds/   INFO] daxfiles/CyberShake_30.xml: Complete!
+
 [ 1450.236] [EnsembleSched/   INFO] Makespan: 1450.236 seconds.
 [ 1450.236] [EnsembleSched/   INFO] Success rate: 2/2
 [ 1450.236] [EnsembleSched/   INFO] Total cost: $36.00
