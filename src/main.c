@@ -153,30 +153,21 @@ int main(int argc, char **argv) {
   }
   /* Display some information about the current run */
   XBT_INFO("Algorithm: %s",getAlgorithmName(globals->alg));
-  XBT_INFO("Priority method: %s",
+  XBT_INFO("  Priority method: %s",
       globals->priority_method ? "SORTED" : "RANDOM");
-  /* Sanity checks about crucial parameters */
-  if (globals->budget && globals->deadline){
-    XBT_INFO("Budget: $%.0f", globals->budget);
-    XBT_INFO("Deadline: %.0fs", globals->deadline);
-  }
+  XBT_INFO("  Dynamic provisioning period: %.0fs", globals->period);
+  XBT_INFO("  Lower utilization threshold: %.2f%%", globals->ul);
+  XBT_INFO("  Upper utilization threshold: %.2f%%", globals->uh);
+
+  XBT_INFO("Platform: %s (%d potential VMs)", platform_file,
+      SD_workstation_get_number());
+  XBT_INFO("  VM hourly cost: $%f", globals->price);
+  XBT_INFO("  VM provisioning delay: %.0fs", globals->provisioning_delay);
   if (ceil(globals->budget/((globals->deadline/3600.)*globals->price))>
       SD_workstation_get_number()){
     XBT_ERROR("The platform file doesn't have enough nodes. Stop here");
     exit(1);
   }
-
-  /* Assign priorities to the DAXes composing the ensemble according to the
-   * chosen method: RANDOM (default) or SORTED.
-   * Then display the result.
-   */
-  assign_dax_priorities(daxes, globals->priority_method);
-  xbt_dynar_foreach(daxes, cursor, current_dax){
-     task = get_root(current_dax);
-     XBT_INFO("DAX %u: %s", cursor, SD_task_get_dax_name(task));
-     XBT_INFO("  Priority: %d", SD_task_get_dax_priority(task));
-  }
-
   /* Assign price and provisioning delay to workstation/VM (for the sake of
    * simplicity) */
   for(cursor=0; cursor<total_nworkstations; cursor++){
@@ -185,6 +176,28 @@ int main(int argc, char **argv) {
         globals->provisioning_delay);
   }
 
+  XBT_INFO("Ensemble: %lu DAXes", xbt_dynar_length(daxes));
+  /* Assign priorities to the DAXes composing the ensemble according to the
+   * chosen method: RANDOM (default) or SORTED.
+   * Then display the result.
+   */
+  assign_dax_priorities(daxes, globals->priority_method);
+  xbt_dynar_foreach(daxes, cursor, current_dax){
+     task = get_root(current_dax);
+     XBT_INFO("  %s", SD_task_get_dax_name(task));
+     XBT_INFO("    Priority: %d", SD_task_get_dax_priority(task));
+  }
+
+  XBT_INFO("Scheduling constraints:");
+  /* Sanity checks about crucial parameters */
+  if (globals->budget && globals->deadline){
+    XBT_INFO("  Budget: $%.0f", globals->budget);
+    XBT_INFO("  Deadline: %.0fs", globals->deadline);
+  } else {
+    XBT_ERROR("  A budget and a deadline have to be provided. Stop here");
+    exit(1);
+  }
+  printf("\n");
   switch(globals->alg){
   case DPDS:
     dpds(daxes, globals);
@@ -193,6 +206,7 @@ int main(int argc, char **argv) {
     XBT_ERROR("Algorithm not implemented yet.");
     break;
   }
+  printf("\n");
 
   /* Post-processing of simulation */
   /* Determine how many DAXes are complete */
