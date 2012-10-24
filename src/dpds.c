@@ -37,7 +37,7 @@ void dpds_provision(double c, double t, scheduling_globals_t globals){
   unsigned int i;
   double u;
   xbt_dynar_t VR = get_running_VMs();
-  xbt_dynar_t VC = get_ending_billing_cycle_VMs();
+  xbt_dynar_t VC = get_ending_billing_cycle_VMs(globals->period, 1.);
   xbt_dynar_t VT = NULL; /* set of VMs to terminate */
   xbt_dynar_t VI = NULL;
   SD_workstation_t v;

@@ -55,7 +55,7 @@ int nameCompareWorkstations(const void *, const void *);
 int is_on_and_idle(SD_workstation_t);
 xbt_dynar_t get_idle_VMs();
 xbt_dynar_t get_running_VMs();
-xbt_dynar_t get_ending_billing_cycle_VMs();
+xbt_dynar_t get_ending_billing_cycle_VMs(double, double);
 xbt_dynar_t find_active_VMs_to_stop(int, xbt_dynar_t);
 SD_workstation_t find_inactive_VM_to_start();
 double compute_current_VM_utilization();

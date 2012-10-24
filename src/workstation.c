@@ -181,8 +181,7 @@ int is_on_and_idle(SD_workstation_t workstation){
 
 /* Build an array that contains all the idle workstations/VMs in the platform */
 xbt_dynar_t get_idle_VMs(){
-  unsigned int i;
-  SD_workstation_t v;
+  int i;
   const SD_workstation_t *workstations = SD_workstation_get_list ();
   int nworkstations = SD_workstation_get_number ();
   xbt_dynar_t idleVMs = xbt_dynar_new(sizeof(SD_workstation_t), NULL);
@@ -216,10 +215,10 @@ xbt_dynar_t get_running_VMs(){
  * their hourly billing cycle" in the platform
  * Remark: In the paper by Malawski et al., no details are provided about when
  * a VM is "approaching" the end of a paid hour. This is hard coded in the
- * source code of cloudworkflowsim: 90s (provisioner interval) +
+ * source code of cloudworkflowsim: 90s (provisioner interval, a.k.a period) +
  * 1s (optimistic deprovisioning delay)
  */
-xbt_dynar_t get_ending_billing_cycle_VMs(){
+xbt_dynar_t get_ending_billing_cycle_VMs(double period, double margin){
   int i;
   const SD_workstation_t *workstations = SD_workstation_get_list ();
   int nworkstations = SD_workstation_get_number ();
@@ -232,10 +231,11 @@ xbt_dynar_t get_ending_billing_cycle_VMs(){
      * compute the time spent between the start of the VM and the current, and
      * keep the time spent in the last hour. As times are expressed in seconds,
      * it amounts to computing the modulo to 3600s=1h.
-     * Then the current VM is selected if this modulo is greater than 3509s
+     * Then the current VM is selected if this modulo is greater than
+     * 3600-period-margin.
      */
-    if (attr->on_off &&
-        ((int)(SD_get_clock() - attr->start_time) % 3600) > 3509)
+    if (attr->on_off && ((int)(SD_get_clock() - attr->start_time) % 3600) >
+                         (3600-period-margin))
       xbt_dynar_push(endingVMs, &(workstations[i]));
   }
 
