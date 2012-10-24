@@ -5,8 +5,11 @@
  *      Author: suter
  */
 #include <stdlib.h>
+#include <stdio.h>
 #include <math.h>
 #include "workstation.h"
+#include "scheduling.h"
+#include "task.h"
 #include "xbt.h"
 #include "simdag/simdag.h"
 
@@ -26,6 +29,7 @@ void SD_workstation_allocate_attribute(SD_workstation_t workstation){
   /* Set the workstations to off and idle at the beginning */
   data->on_off = 0;
   data->idle_busy = 0;
+  data->booting=NULL;
   SD_workstation_set_data(workstation, data);
 }
 
@@ -112,11 +116,21 @@ int nameCompareWorkstations(const void *n1, const void *n2) {
 void SD_workstation_start(SD_workstation_t workstation){
   WorkstationAttribute attr =
     (WorkstationAttribute) SD_workstation_get_data(workstation);
+  char name[1024];
+
   attr->on_off = 1;
   attr->idle_busy = 0;
   attr->start_time = SD_get_clock();
   attr->total_cost += attr->price;
+  if (attr->provisioning_delay){
+    sprintf(name,"Booting %s", SD_workstation_get_name(workstation));
 
+    attr->booting = SD_task_create_comp_seq(name, NULL,
+        attr->provisioning_delay*SD_workstation_get_power(workstation));
+    SD_task_schedulel(attr->booting, 1, workstation);
+    attr->available_at += attr->provisioning_delay;
+    handle_resource_dependency(workstation, attr->booting);
+  }
   XBT_DEBUG("VM started on %s: Total cost is now $%f for this workstation",
       SD_workstation_get_name(workstation),
       attr->total_cost);
@@ -136,6 +150,8 @@ void SD_workstation_terminate(SD_workstation_t workstation){
     (WorkstationAttribute) SD_workstation_get_data(workstation);
   double duration = SD_get_clock() - attr->start_time;
 
+  if (attr->booting)
+    SD_task_destroy(attr->booting);
   attr->on_off = 0;
   attr->start_time = 0.0;
   attr->total_cost += ((((int) duration / 3600)) * attr->price);

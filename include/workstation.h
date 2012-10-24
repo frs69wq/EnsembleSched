@@ -21,6 +21,8 @@ struct _WorkstationAttribute {
   double price;
   double provisioning_delay;
   double total_cost;
+
+  SD_task_t booting;
   //TODO add necessary attributes
 };
 

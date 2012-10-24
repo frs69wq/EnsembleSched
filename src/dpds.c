@@ -168,6 +168,15 @@ void dpds_schedule(xbt_dynar_t daxes, scheduling_globals_t globals){
       /* Action on completion of a task (lines 13 to 15) */
 
       xbt_dynar_foreach(changed, i, t){
+        /* If VM have a provisioning delay, a task whose name starts by
+         * "Booting" has been created. No action taken upon completion of such
+         * a task apart from displaying some verbose output.
+         */
+        if (!strncmp(SD_task_get_name(t), "Booting", 7)){
+          XBT_VERB("%s is done", SD_task_get_name(t));
+          continue;
+        }
+
         if (SD_task_get_kind(t) == SD_TASK_COMP_SEQ &&
             SD_task_get_state(t) == SD_DONE){
           XBT_VERB("%s (from %s) has completed", SD_task_get_name(t),
@@ -211,6 +220,9 @@ void dpds_schedule(xbt_dynar_t daxes, scheduling_globals_t globals){
 
         /* Remove a random VM from the list of idleVMs and set it as busy */
         v = select_random(idleVMs);
+//        if (xbt_dynar_member(idleVMs,&v)){
+//          XBT_WARN("WTF!!! %s should be out !!!", SD_workstation_get_name(v));
+//        }
         SD_workstation_set_to_busy(v);
 
         /* Pop the last task from the queue, i.e. one belonging to the DAX of
