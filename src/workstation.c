@@ -69,34 +69,6 @@ void SD_workstation_set_last_scheduled_task(SD_workstation_t workstation,
   SD_workstation_set_data(workstation, attr);
 }
 
-void SD_workstation_start(SD_workstation_t workstation){
-  WorkstationAttribute attr =
-    (WorkstationAttribute) SD_workstation_get_data(workstation);
-  attr->on_off = 1;
-  attr->start_time = SD_get_clock();
-  attr->total_cost += attr->price;
-  XBT_INFO("Total cost for %s is now $%f", SD_workstation_get_name(workstation),
-      attr->total_cost);
-  SD_workstation_set_data(workstation, attr);
-}
-
-void SD_workstation_terminate(SD_workstation_t workstation){
-  WorkstationAttribute attr =
-    (WorkstationAttribute) SD_workstation_get_data(workstation);
-  double duration = SD_get_clock() - attr->start_time;
-
-  /* Do some accounting. The time (in seconds) spent since the last time
-   * workstation/VM was started (state set to ON) is rounded down (as the first
-   * hour is charged on activation) and multiplied by the hour price.
-   */
-  attr->total_cost += ((((int) duration / 3600)) * attr->price);
-  XBT_INFO("Total cost for %s is now $%f", SD_workstation_get_name(workstation),
-      attr->total_cost);
-  attr->on_off = 0;
-  attr->start_time = 0.0;
-  SD_workstation_set_data(workstation, attr);
-}
-
 void SD_workstation_set_to_idle(SD_workstation_t workstation){
   WorkstationAttribute attr =
     (WorkstationAttribute) SD_workstation_get_data(workstation);
@@ -122,6 +94,49 @@ int nameCompareWorkstations(const void *n1, const void *n2) {
 /**************    Functions needed by scheduling algorithms    **************/
 /*****************************************************************************/
 /*****************************************************************************/
+
+/* Activate a resource, i.e., act as if a VM is started on a workstation. This
+ * amounts to :
+ * - setting attributes to 'ON' and 'idle'
+ * - Resetting the start time of the workstation to the current time
+ * - bill at least the first hour
+ */
+void SD_workstation_start(SD_workstation_t workstation){
+  WorkstationAttribute attr =
+    (WorkstationAttribute) SD_workstation_get_data(workstation);
+  attr->on_off = 1;
+  attr->idle_busy = 0;
+  attr->start_time = SD_get_clock();
+  attr->total_cost += attr->price;
+
+  XBT_DEBUG("VM started on %s: Total cost is now $%f for this workstation",
+      SD_workstation_get_name(workstation),
+      attr->total_cost);
+  SD_workstation_set_data(workstation, attr);
+}
+
+/* Disable a resource, i.e., act as a VM is terminated on a workstation. This
+ * amounts to:
+ * - setting attributes to 'OFF'
+ * - Resetting the start time of the workstation to 0 (just in case)
+ * - Do some accounting. The time (in seconds) spent since the last time
+ *   workstation/VM was started (state set to ON) is rounded down (as the first
+ *   hour is charged on activation) and multiplied by the hour price.
+*/
+void SD_workstation_terminate(SD_workstation_t workstation){
+  WorkstationAttribute attr =
+    (WorkstationAttribute) SD_workstation_get_data(workstation);
+  double duration = SD_get_clock() - attr->start_time;
+
+  attr->on_off = 0;
+  attr->start_time = 0.0;
+  attr->total_cost += ((((int) duration / 3600)) * attr->price);
+
+  XBT_DEBUG("VM stopped on %s: Total cost is now $%f for this workstation",
+      SD_workstation_get_name(workstation),
+      attr->total_cost);
+  SD_workstation_set_data(workstation, attr);
+}
 
 /* Simple function to know whether a workstation/VM can accept tasks for
  * execution. Has to be ON and idle for that.
