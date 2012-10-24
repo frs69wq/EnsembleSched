@@ -10,6 +10,7 @@
 #include "scheduling.h"
 
 SD_task_t get_root(xbt_dynar_t dax);
+SD_task_t get_end(xbt_dynar_t dax);
 
 void assign_dax_priorities(xbt_dynar_t, method_t);
 double compute_score(xbt_dynar_t);
