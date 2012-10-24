@@ -23,6 +23,13 @@ SD_task_t get_root(xbt_dynar_t dax){
   return task;
 }
 
+SD_task_t get_end(xbt_dynar_t dax){
+  SD_task_t task;
+
+  xbt_dynar_get_cpy(dax, xbt_dynar_length(dax)-1, &task);
+  return task;
+}
+
 /* Comparison function to sort DAXes increasingly according to their size.
  * Assumption: this size consider all tasks (computations AND transfers). Could
  * be modified to count only compute tasks.
@@ -90,4 +97,24 @@ void assign_dax_priorities(xbt_dynar_t daxes, method_t method){
     }
   }
   free(priorities);
+}
+
+double compute_score(xbt_dynar_t daxes){
+  double total_score = 0;
+  double current_score;
+  unsigned int i;
+  xbt_dynar_t current_dax;
+  SD_task_t task;
+
+  xbt_dynar_foreach(daxes, i, current_dax){
+    task = get_end(current_dax);
+    if (SD_task_get_state(task) == SD_DONE){
+      current_score = pow(2.0, -SD_task_get_dax_priority(task));
+      XBT_INFO("%s has completed its execution."
+          " It contributes to the score by %f",
+          SD_task_get_dax_name(task), current_score);
+      total_score += current_score;
+    }
+  }
+  return total_score;
 }
