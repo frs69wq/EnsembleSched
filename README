@@ -1,8 +1,13 @@
 This project is a simulator based on SimGrid of various scheduling
 algorithms for workflow ensembles on a cloud platform.
 
+This program is free software; you can redistribute it and/or modify
+it under the terms of the license (GNU LGPL) which comes with this
+package.
+
+
 Requires SimGrid (git release):
-* http://simgrid.gforge.inria.fr
+* http://simgrid.org/download.php
 * git clone git://scm.gforge.inria.fr/simgrid/simgrid.git
 * 101 tutorial on the used SimDAG API:
   * http://simgrid.gforge.inria.fr/tutorials/101/simdag-101.pdf
@@ -64,9 +69,9 @@ Corresponding output:
 
 To obtain more verbose outputs add to the command line:
 * Full logging
-  --log=EnsembleSched.thresh:verbose or --log=EnsembleSched.thresh:debug
+  --log=EnsembleSched.thres:verbose or --log=EnsembleSched.thres:debug
 * Logging for an algorithm 
-   --log=dpds.thresh:verbose or --log=dpds.thresh:debug
+   --log=dpds.thres:verbose or --log=dpds.thres:debug
 * Logging for functions related to a specific element (task, workstations, ...)
-   --log=task.thresh:debug
+   --log=task.thres:debug
 
