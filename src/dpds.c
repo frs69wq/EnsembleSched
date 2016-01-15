@@ -209,7 +209,6 @@ void dpds_schedule(xbt_dynar_t daxes, scheduling_globals_t globals){
           xbt_dynar_free_container(&ready_children); /* avoid memory leaks */
         }
       }
-      xbt_dynar_free_container(&changed); /* avoid memory leaks */
 
       /* Sort again the priority queue as new tasks have been added. */
       xbt_dynar_sort(priority_queue, daxPriorityCompareTasks);
