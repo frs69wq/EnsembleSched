@@ -1,8 +1,8 @@
 /*
- * main.c
- *
- *  Created on: 10 oct. 2012
- *      Author: suter
+ * Copyright (c) Centre de Calcul de l'IN2P3 du CNRS
+ * Contributor(s) : Frédéric SUTER (2012-2016)
+ * This program is free software; you can redistribute it and/or modify it
+ * under the terms of the license (GNU LGPL) which comes with this package.
  */
 #include <getopt.h>
 #include <ctype.h>
@@ -10,7 +10,7 @@
 #include <stdlib.h>
 #include <math.h>
 
-#include "simdag/simdag.h"
+#include "simgrid/simdag.h"
 #include "xbt.h"
 #include "dax.h"
 #include "task.h"

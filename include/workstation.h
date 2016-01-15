@@ -1,13 +1,13 @@
 /*
- * workstation.h
- *
- *  Created on: 10 oct. 2012
- *      Author: suter
+ * Copyright (c) Centre de Calcul de l'IN2P3 du CNRS
+ * Contributor(s) : Frédéric SUTER (2012-2016)
+ * This program is free software; you can redistribute it and/or modify it
+ * under the terms of the license (GNU LGPL) which comes with this package.
  */
 
 #ifndef WORKSTATION_H_
 #define WORKSTATION_H_
-#include "simdag/simdag.h"
+#include "simgrid/simdag.h"
 
 typedef struct _WorkstationAttribute *WorkstationAttribute;
 struct _WorkstationAttribute {

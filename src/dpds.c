@@ -1,18 +1,20 @@
 /*
+ * Copyright (c) Centre de Calcul de l'IN2P3 du CNRS
+ * Contributor(s) : Frédéric SUTER (2012-2016)
+ * This program is free software; you can redistribute it and/or modify it
+ * under the terms of the license (GNU LGPL) which comes with this package.
+ *
  * dpds.c
  * SimDAG implementation of the Dynamic Provisioning, Dynamic Scheduling
  * Algorithm from
  * Cost- and Deadline-Constrained Provisioning for Scientific Workflow
  * Ensembles in IaaS Clouds by Maciej Malawski, Gideon Juve, Ewa Deelman and
  * Jarek Nabrzyski published at SC'12.
- *
- *  Created on: 10 oct. 2012
- *      Author: suter
  */
 #include <stdio.h>
 #include <math.h>
 #include "xbt.h"
-#include "simdag/simdag.h"
+#include "simgrid/simdag.h"
 #include "dax.h"
 #include "workstation.h"
 #include "task.h"
@@ -148,7 +150,6 @@ void dpds_schedule(xbt_dynar_t daxes, scheduling_globals_t globals){
         XBT_DEBUG("End of a period of %.0f seconds. Start a new one",
             globals->period);
         step++;
-        xbt_dynar_free_container(&changed); /* avoid memory leak */
 
         /* Compute current budget consumption */
         consumed_budget = compute_budget_consumption();
@@ -237,7 +238,6 @@ void dpds_schedule(xbt_dynar_t daxes, scheduling_globals_t globals){
         handle_resource_dependency(v, t);
       }
     }
-    xbt_dynar_free_container(&changed); /* avoid memory leaks */
   } while ((globals->deadline - SD_get_clock() > 0.00001) &&
            (completed_daxes < xbt_dynar_length(daxes)));
 
@@ -259,7 +259,6 @@ void dpds_schedule(xbt_dynar_t daxes, scheduling_globals_t globals){
   /* Cleaning step once simulation is over */
   xbt_dynar_free_container(&idleVMs);
   xbt_dynar_free_container(&priority_queue);
-  xbt_dynar_free_container(&changed);
 }
 
 void dpds(xbt_dynar_t daxes, scheduling_globals_t globals){
