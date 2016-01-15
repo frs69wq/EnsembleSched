@@ -1,4 +1,4 @@
-SIMGRID_PATH = /usr/local/
+SIMGRID_PATH = /usr/local
 CC = gcc
 LIBS := -lsimgrid -lm
 
