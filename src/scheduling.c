@@ -91,7 +91,7 @@ double compute_budget_consumption(){
   int i=0;
   WorkstationAttribute attr;
   const SD_workstation_t *workstations = SD_workstation_get_list ();
-  int nworkstations = SD_workstation_get_number ();
+  int nworkstations = SD_workstation_get_count ();
 
   for(i=0;i<nworkstations;i++){
     attr = SD_workstation_get_data(workstations[i]);

@@ -132,7 +132,7 @@ void SD_workstation_start(SD_workstation_t workstation){
     sprintf(name,"Booting %s", SD_workstation_get_name(workstation));
 
     attr->booting = SD_task_create_comp_seq(name, NULL,
-        attr->provisioning_delay*SD_workstation_get_power(workstation));
+        attr->provisioning_delay*SD_workstation_get_speed(workstation));
     SD_task_schedulel(attr->booting, 1, workstation);
     attr->available_at += attr->provisioning_delay;
     handle_resource_dependency(workstation, attr->booting);
@@ -183,7 +183,7 @@ int is_on_and_idle(SD_workstation_t workstation){
 xbt_dynar_t get_idle_VMs(){
   int i;
   const SD_workstation_t *workstations = SD_workstation_get_list ();
-  int nworkstations = SD_workstation_get_number ();
+  int nworkstations = SD_workstation_get_count ();
   xbt_dynar_t idleVMs = xbt_dynar_new(sizeof(SD_workstation_t), NULL);
 
   for (i = 0; i < nworkstations; i++){
@@ -198,7 +198,7 @@ xbt_dynar_t get_idle_VMs(){
 xbt_dynar_t get_running_VMs(){
   int i;
   const SD_workstation_t *workstations = SD_workstation_get_list ();
-  int nworkstations = SD_workstation_get_number ();
+  int nworkstations = SD_workstation_get_count ();
   WorkstationAttribute attr;
   xbt_dynar_t runningVMs = xbt_dynar_new(sizeof(SD_workstation_t), NULL);
 
@@ -221,7 +221,7 @@ xbt_dynar_t get_running_VMs(){
 xbt_dynar_t get_ending_billing_cycle_VMs(double period, double margin){
   int i;
   const SD_workstation_t *workstations = SD_workstation_get_list ();
-  int nworkstations = SD_workstation_get_number ();
+  int nworkstations = SD_workstation_get_count ();
   WorkstationAttribute attr;
   xbt_dynar_t endingVMs = xbt_dynar_new(sizeof(SD_workstation_t), NULL);
 
@@ -302,7 +302,7 @@ xbt_dynar_t find_active_VMs_to_stop(int how_many, xbt_dynar_t source){
 SD_workstation_t find_inactive_VM_to_start(){
   int i=0;
   const SD_workstation_t *workstations = SD_workstation_get_list ();
-  int nworkstations = SD_workstation_get_number ();
+  int nworkstations = SD_workstation_get_count ();
   WorkstationAttribute attr;
   SD_workstation_t v = NULL;
 
@@ -333,7 +333,7 @@ SD_workstation_t find_inactive_VM_to_start(){
 double compute_current_VM_utilization(){
   int i=0;
   const SD_workstation_t *workstations = SD_workstation_get_list ();
-  int nworkstations = SD_workstation_get_number ();
+  int nworkstations = SD_workstation_get_count ();
   WorkstationAttribute attr;
   int nActiveVMs = 0, nBusyVMs = 0;
 

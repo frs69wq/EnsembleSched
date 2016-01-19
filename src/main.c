@@ -87,7 +87,7 @@ int main(int argc, char **argv) {
     case 'b':
       platform_file = optarg;
       SD_create_environment(platform_file);
-      total_nworkstations = SD_workstation_get_number();
+      total_nworkstations = SD_workstation_get_count();
       workstations = SD_workstation_get_list();
 
       /* Sort the hosts by name for sake of simplicity */
@@ -160,11 +160,11 @@ int main(int argc, char **argv) {
   XBT_INFO("  Upper utilization threshold: %.2f%%", globals->uh);
 
   XBT_INFO("Platform: %s (%d potential VMs)", platform_file,
-      SD_workstation_get_number());
+      SD_workstation_get_count());
   XBT_INFO("  VM hourly cost: $%f", globals->price);
   XBT_INFO("  VM provisioning delay: %.0fs", globals->provisioning_delay);
   if (ceil(globals->budget/((globals->deadline/3600.)*globals->price))>
-      SD_workstation_get_number()){
+      SD_workstation_get_count()){
     XBT_ERROR("The platform file doesn't have enough nodes. Stop here");
     exit(1);
   }
