@@ -14,22 +14,21 @@
 #include "xbt.h"
 #include "dax.h"
 #include "task.h"
-#include "workstation.h"
+#include "host.h"
 #include "scheduling.h"
 
-XBT_LOG_NEW_DEFAULT_CATEGORY(EnsembleSched,
-    "Logging specific to EnsembleSched");
+XBT_LOG_NEW_DEFAULT_CATEGORY(EnsembleSched, "Logging specific to EnsembleSched");
 
 int main(int argc, char **argv) {
   unsigned int flag, cursor, cursor2;
   char *platform_file = NULL, *daxname = NULL, *priority=NULL;
-  int total_nworkstations = 0;
-  const SD_workstation_t *workstations = NULL;
+  int total_nhosts = 0;
+  const sg_host_t *hosts = NULL;
   xbt_dynar_t daxes = NULL, current_dax = NULL;
   int completed_daxes = 0;
   SD_task_t task;
   scheduling_globals_t globals;
-  WorkstationAttribute attr;
+  HostAttribute attr;
   double total_cost = 0.0, score = 0.0;
 
   SD_init(&argc, argv);
@@ -63,8 +62,7 @@ int main(int argc, char **argv) {
     };
 
     int option_index = 0;
-    flag = getopt_long (argc, argv, "",
-                        long_options, &option_index);
+    flag = getopt_long (argc, argv, "", long_options, &option_index);
 
     /* Detect the end of the options. */
     if (flag == -1)
@@ -87,15 +85,14 @@ int main(int argc, char **argv) {
     case 'b':
       platform_file = optarg;
       SD_create_environment(platform_file);
-      total_nworkstations = SD_workstation_get_count();
-      workstations = SD_workstation_get_list();
+      total_nhosts = sg_host_count();
+      hosts = sg_host_list();
 
       /* Sort the hosts by name for sake of simplicity */
-      qsort((void *)workstations,total_nworkstations, sizeof(SD_workstation_t),
-          nameCompareWorkstations);
+      qsort((void *)hosts,total_nhosts, sizeof(sg_host_t), nameCompareHosts);
 
-      for(cursor=0; cursor<total_nworkstations; cursor++){
-        SD_workstation_allocate_attribute(workstations[cursor]);
+      for(cursor=0; cursor<total_nhosts; cursor++){
+        sg_host_allocate_attribute(hosts[cursor]);
       }
       break;
     case 'c':
@@ -118,10 +115,8 @@ int main(int argc, char **argv) {
         globals->priority_method = RANDOM;
       else if (!strcmp(priority, "sorted"))
         globals->priority_method = SORTED;
-      else {
-        XBT_ERROR("Unknown priority setting method.");
-        exit(1);
-      }
+      else
+        xbt_die("Unknown priority setting method.");
       break;
     case 'e':
       globals->deadline = atof(optarg);
@@ -153,32 +148,25 @@ int main(int argc, char **argv) {
   }
   /* Display some information about the current run */
   XBT_INFO("Algorithm: %s",getAlgorithmName(globals->alg));
-  XBT_INFO("  Priority method: %s",
-      globals->priority_method ? "SORTED" : "RANDOM");
+  XBT_INFO("  Priority method: %s", globals->priority_method ? "SORTED" : "RANDOM");
   XBT_INFO("  Dynamic provisioning period: %.0fs", globals->period);
   XBT_INFO("  Lower utilization threshold: %.2f%%", globals->ul);
   XBT_INFO("  Upper utilization threshold: %.2f%%", globals->uh);
 
-  XBT_INFO("Platform: %s (%d potential VMs)", platform_file,
-      SD_workstation_get_count());
+  XBT_INFO("Platform: %s (%zu potential VMs)", platform_file, sg_host_count());
   XBT_INFO("  VM hourly cost: $%f", globals->price);
   XBT_INFO("  VM provisioning delay: %.0fs", globals->provisioning_delay);
-  if (ceil(globals->budget/((globals->deadline/3600.)*globals->price))>
-      SD_workstation_get_count()){
-    XBT_ERROR("The platform file doesn't have enough nodes. Stop here");
-    exit(1);
+  if (ceil(globals->budget / ((globals->deadline / 3600.) * globals->price)) > sg_host_count()){
+    xbt_die("The platform file doesn't have enough nodes. Stop here");
   }
-  /* Assign price and provisioning delay to workstation/VM (for the sake of
-   * simplicity) */
-  for(cursor=0; cursor<total_nworkstations; cursor++){
-    SD_workstation_set_price(workstations[cursor], globals->price);
-    SD_workstation_set_provisioning_delay(workstations[cursor],
-        globals->provisioning_delay);
+  /* Assign price and provisioning delay to host/VM (for the sake of simplicity) */
+  for(cursor=0; cursor < total_nhosts; cursor++){
+    sg_host_set_price(hosts[cursor], globals->price);
+    sg_host_set_provisioning_delay(hosts[cursor], globals->provisioning_delay);
   }
 
   XBT_INFO("Ensemble: %lu DAXes", xbt_dynar_length(daxes));
-  /* Assign priorities to the DAXes composing the ensemble according to the
-   * chosen method: RANDOM (default) or SORTED.
+  /* Assign priorities to the DAXes composing the ensemble according to the chosen method: RANDOM (default) or SORTED.
    * Then display the result.
    */
   assign_dax_priorities(daxes, globals->priority_method);
@@ -194,8 +182,7 @@ int main(int argc, char **argv) {
     XBT_INFO("  Budget: $%.0f", globals->budget);
     XBT_INFO("  Deadline: %.0fs", globals->deadline);
   } else {
-    XBT_ERROR("  A budget and a deadline have to be provided. Stop here");
-    exit(1);
+    xbt_die("  A budget and a deadline have to be provided. Stop here");
   }
   printf("\n");
   switch(globals->alg){
@@ -218,10 +205,10 @@ int main(int argc, char **argv) {
   }
 
   /* Terminate all VMs and do the final billing*/
-  for (cursor = 0; cursor < total_nworkstations; cursor++){
-    attr = SD_workstation_get_data(workstations[cursor]);
+  for (cursor = 0; cursor < total_nhosts; cursor++){
+    attr = sg_host_user(hosts[cursor]);
     if (attr->on_off)
-      SD_workstation_terminate(workstations[cursor]);
+      sg_host_terminate(hosts[cursor]);
     total_cost += attr->total_cost;
   }
 
@@ -248,8 +235,8 @@ int main(int argc, char **argv) {
   xbt_dynar_free(&daxes);
   free(globals);
 
-  for(cursor = 0; cursor < total_nworkstations; cursor++)
-    SD_workstation_free_attribute(workstations[cursor]);
+  for(cursor = 0; cursor < total_nhosts; cursor++)
+    sg_host_free_attribute(hosts[cursor]);
 
   SD_exit();
 

@@ -47,7 +47,7 @@ scheduling_globals_t new_scheduling_globals();
 char* getAlgorithmName(alg_t);
 alg_t getAlgorithmByName(char*);
 
-void handle_resource_dependency(SD_workstation_t, SD_task_t);
+void handle_resource_dependency(sg_host_t, SD_task_t);
 
 /*****************************************************************************/
 /*************       Scheduling algorithms entry points        ***************/

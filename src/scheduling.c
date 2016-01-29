@@ -6,21 +6,18 @@
  */
 #include <string.h>
 #include "simgrid/simdag.h"
-#include "workstation.h"
+#include "host.h"
 #include "scheduling.h"
 #include "xbt.h"
 
-XBT_LOG_NEW_DEFAULT_SUBCATEGORY(scheduling, EnsembleSched,
-                                "Logging specific to scheduling");
+XBT_LOG_NEW_DEFAULT_SUBCATEGORY(scheduling, EnsembleSched, "Logging specific to scheduling");
 
 scheduling_globals_t new_scheduling_globals(){
-  scheduling_globals_t globals =
-      (scheduling_globals_t) calloc (1, sizeof(struct _scheduling_globals));
+  scheduling_globals_t globals = (scheduling_globals_t) calloc (1, sizeof(struct _scheduling_globals));
 
   /* set some default values */
   globals->priority_method = RANDOM;
-  globals->period = 90.0; /* value found in the source code of
-                             cloudworkflowsim */
+  globals->period = 90.0; /* value found in the source code of cloudworkflowsim */
   globals->price = 1.0;
   globals->budget = 0.;
   globals->deadline = 0.;
@@ -38,8 +35,7 @@ char* getAlgorithmName(alg_t a){
     case WADPDS: return "WA-DPDS";
     case SPSS: return "SPSS";
     case OURS: return "OURS";
-    default: XBT_ERROR("Unknown algorithm");
-       exit(1);
+    default: xbt_die("Unknown algorithm");
   }
 }
 
@@ -52,53 +48,45 @@ alg_t getAlgorithmByName(char* name) {
      return SPSS;
   else if (!strcmp(name,"OURS"))
      return OURS;
-  else {
-     XBT_ERROR("Unknown algorithm");
-     exit (1);
-  }
+  else
+     xbt_die("Unknown algorithm");
 }
 
 
-/* When some independent tasks are scheduled on the same resource, the SimGrid
- * kernel start them in parallel as soon as possible even though the scheduler
- * assumed a sequential execution. This function addresses this issue by
- * enforcing that sequential execution wanted by the scheduler. A resource
- * dependency is added to that extent.
+/* When some independent tasks are scheduled on the same resource, the SimGrid kernel start them in parallel as soon
+ * as possible even though the scheduler assumed a sequential execution. This function addresses this issue by
+ * enforcing that sequential execution wanted by the scheduler. A resource dependency is added to that extent.
  */
-void handle_resource_dependency(SD_workstation_t workstation, SD_task_t task){
-  /* Get the last task executed on this workstation */
-  SD_task_t source = SD_workstation_get_last_scheduled_task(workstation);
+void handle_resource_dependency(sg_host_t host, SD_task_t task){
+  /* Get the last task executed on this host */
+  SD_task_t source = sg_host_get_last_scheduled_task(host);
 
-  /* If such a task exists, is still in the system (scheduled or running) and is
-   * not already a predecessor of the current task, create a resource dependency
+  /* If such a task exists, is still in the system (scheduled or running) and is not already a predecessor of the
+   * current task, create a resource dependency
    */
-  if (source && (SD_task_get_state(source)!= SD_DONE) &&
-      !SD_task_dependency_exists(source, task))
+  if (source && (SD_task_get_state(source)!= SD_DONE) && !SD_task_dependency_exists(source, task))
     SD_task_dependency_add("resource", NULL, source, task);
 
-  /* update the information on what is the last task executed on this
-   * workstation */
-  SD_workstation_set_last_scheduled_task(workstation, task);
+  /* update the information on what is the last task executed on this host */
+  sg_host_set_last_scheduled_task(host, task);
 }
 
 
-/* Determine how much money has already been spent. Each workstation/VM has an
- * attribute that sums the cost (#hours*price) for each period in which the VM
- * is on.
+/* Determine how much money has already been spent. Each host/VM has an attribute that sums the cost (#hours*price)
+ * for each period in which the VM is on.
  */
 double compute_budget_consumption(){
   double consumed_budget = 0.0;
   int i=0;
-  WorkstationAttribute attr;
-  const SD_workstation_t *workstations = SD_workstation_get_list ();
-  int nworkstations = SD_workstation_get_count ();
+  HostAttribute attr;
+  const sg_host_t *hosts = sg_host_list ();
+  int nhosts = sg_host_count ();
 
-  for(i=0;i<nworkstations;i++){
-    attr = SD_workstation_get_data(workstations[i]);
+  for(i=0;i<nhosts;i++){
+    attr = sg_host_user(hosts[i]);
     consumed_budget += attr->total_cost;
     if (attr->on_off){
-      XBT_DEBUG("%s : Account for %d consumed hours",
-          SD_workstation_get_name(workstations[i]),
+      XBT_DEBUG("%s : Account for %d consumed hours", sg_host_get_name(hosts[i]),
           (int)(SD_get_clock()-attr->start_time)/3600);
       consumed_budget += (((int)(SD_get_clock()-attr->start_time)/3600))*attr->price;
     }

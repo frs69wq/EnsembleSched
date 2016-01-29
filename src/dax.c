@@ -13,8 +13,7 @@
 #include "dax.h"
 #include "task.h"
 
-XBT_LOG_NEW_DEFAULT_SUBCATEGORY(dax, EnsembleSched,
-                                "Logging specific to daxes");
+XBT_LOG_NEW_DEFAULT_SUBCATEGORY(dax, EnsembleSched, "Logging specific to daxes");
 
 SD_task_t get_root(xbt_dynar_t dax){
   SD_task_t task;
@@ -31,8 +30,7 @@ SD_task_t get_end(xbt_dynar_t dax){
 }
 
 /* Comparison function to sort DAXes increasingly according to their size.
- * Assumption: this size consider all tasks (computations AND transfers). Could
- * be modified to count only compute tasks.
+ * Assumption: this size consider all tasks (computations AND transfers). Could be modified to count only compute tasks.
  */
 int sizeCompareDaxes(const void *d1, const void *d2) {
   int size1, size2;
@@ -49,9 +47,8 @@ int sizeCompareDaxes(const void *d1, const void *d2) {
 }
 
 /* Implementation of Knuth shuffle found on the web.
- * Arrange the N elements of ARRAY in random order. Only effective if N is much
- * smaller than RAND_MAX; if this may not be the case, use a better random
- * number generator. */
+ * Arrange the N elements of ARRAY in random order. Only effective if N is much smaller than RAND_MAX; if this may not
+ * be the case, use a better random number generator. */
 void shuffle(int *array, size_t n){
   if (n > 1){
     size_t i;
@@ -65,14 +62,13 @@ void shuffle(int *array, size_t n){
 }
 
 
-/* Assign priorities to DAXes according to a user specified method. Priorities
- * are unique integer values taken in [0;#daxes].
- *  - RANDOM priorities: the array of possible priorities is shuffled using the
- *    Knuth shuffle. Then priorities are assigned to daxes in order.
- *  - SORTED priorities: Daxes are first sorted by ascending size. Then
- *    increasing priorities are assigned according to this order.
- * Remark: the size of a dax used by the comparison function includes data
- * transfer tasks.
+/* Assign priorities to DAXes according to a user specified method. Priorities are unique integer values taken
+ * in [0;#daxes].
+ *  - RANDOM priorities: the array of possible priorities is shuffled using the Knuth shuffle. Then priorities are
+ *    assigned to daxes in order.
+ *  - SORTED priorities: Daxes are first sorted by ascending size. Then increasing priorities are assigned according
+ *    to this order.
+ * Remark: the size of a dax used by the comparison function includes data transfer tasks.
  */
 void assign_dax_priorities(xbt_dynar_t daxes, method_t method){
   int *priorities;
@@ -110,9 +106,8 @@ double compute_score(xbt_dynar_t daxes){
     task = get_end(current_dax);
     if (SD_task_get_state(task) == SD_DONE){
       current_score = pow(2.0, -SD_task_get_dax_priority(task));
-      XBT_DEBUG("%s has completed its execution."
-          " It contributes to the score by %f",
-          SD_task_get_dax_name(task), current_score);
+      XBT_DEBUG("%s has completed its execution. It contributes to the score by %f",
+                SD_task_get_dax_name(task), current_score);
       total_score += current_score;
     }
   }

@@ -5,7 +5,7 @@ LIBS := -lsimgrid -lm
 SOURCES = \
 src/dax.c \
 src/task.c \
-src/workstation.c \
+src/host.c \
 src/scheduling.c \
 src/dpds.c \
 src/main.c 
@@ -13,7 +13,7 @@ src/main.c
 OBJS = \
 src/dax.o \
 src/task.o \
-src/workstation.o \
+src/host.o \
 src/scheduling.o \
 src/dpds.o \
 src/main.o
