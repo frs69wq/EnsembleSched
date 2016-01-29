@@ -1,7 +1,8 @@
-This project is a SimGrid-based simulator of various scheduling algorithms for workflow ensembles on a cloud platform.
+This project is a SimGrid-based simulator of various scheduling algorithms for workflow ensembles 
+on a cloud platform.
 
-This program is free software; you can redistribute it and/or modify it under the terms of the license (GNU LGPL) which
-comes with this package.
+This program is free software; you can redistribute it and/or modify it under the terms of the 
+license (GNU LGPL) which comes with this package.
 
 
 Requires SimGrid (git release):
@@ -13,20 +14,25 @@ Requires SimGrid (git release):
 The command line accepts many parameters:
 * --alg <algorithm name>: the scheduling algorithm (currently only DPDS)
 * --priority <random|sorted>: method to assign priority to workflows (default value: random)
-* --period <double>: time in seconds between two dynamic provisioning of resources (default value: 90.)
+* --period <double>: time in seconds between two dynamic provisioning of resources 
+        (default value: 90.)
 * --uh <double>: upper utilization threshold in percents (default value: 90)
 * --ul <double>: lower utilization threshold in percents (default value: 70)
 * --platform <platform file>: the description of the cloud in the simgrid format
 * --price <double>: hourly cost of a single VM in $/h (default value: 1) 
-* --provisioning_delay <double>: time in seconds before a started VM actually becomes available (default value: 0.)
-* --dax <file>: description of a workflow in the Pegasus format (DAX). Multiple --dax flags can be used
+* --provisioning_delay <double>: time in seconds before a started VM actually becomes 
+        available (default value: 0.)
+* --dax <file>: description of a workflow in the Pegasus format (DAX).
+        Multiple --dax flags can be used
 * --budget <double>: budget in $ (or any other currency)
-* --deadline <double>: deadline before which a maximum of workflows have to complete expressed in seconds
+* --deadline <double>: deadline before which a maximum of workflows have to complete 
+        expressed in seconds
 * --silent: no information are displayed on the standard output
 * --dump <filename>: produce a file with many information on the simulation run
 
 Typical command line:
-./EnsembleSched --alg DPDS --platform cluster.xml --dax daxfiles/Montage_50.xml --dax daxfiles/CyberShake_30.xml \
+./EnsembleSched --alg DPDS --platform cluster.xml \
+--dax daxfiles/Montage_50.xml --dax daxfiles/CyberShake_30.xml \
 --budget 100 --deadline 10000
 
 Corresponding output:
